@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>النظام المحاسبي | إديو ستبس - الرياض</title>
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/png" href="../img/favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/styles.css" />
+<link rel="stylesheet" href="../css/app.css" />
+</head>
+<body class="app-body">
+
+<!-- ===================== شاشة الدخول ===================== -->
+<div class="login-screen" id="loginScreen">
+  <div class="bg-aurora" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <img src="../img/logo.jpg" alt="Edusteps — إديو ستبس الرياض" />
+      <b>إديو ستبس - الرياض</b>
+      <span>النظام المحاسبي المدرسي</span>
+    </div>
+    <h2>تسجيل دخول المحاسب</h2>
+    <p class="muted">مخصص لفريق الشؤون المالية والمحاسبة فقط</p>
+
+    <div id="loginAlert" class="form-alert"></div>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label>اسم المستخدم</label>
+        <input type="text" id="loginUsername" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label>كلمة المرور</label>
+        <input type="password" id="loginPassword" autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
+        <span class="spinner" id="loginSpinner"></span>
+        <span id="loginBtnText">تسجيل الدخول</span>
+      </button>
+    </form>
+
+  </div>
+</div>
+
+<!-- ===================== التطبيق ===================== -->
+<div class="app-shell hidden" id="appShell">
+  <div class="mobile-topbar">
+    <button id="mobileMenuBtn" aria-label="القائمة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <b>النظام المحاسبي</b>
+    <span style="width:24px"></span>
+  </div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-mark"><img src="../img/logo.jpg" alt="Edusteps" /></span>
+      <span><b>إديو ستبس الرياض</b><span>النظام المحاسبي</span></span>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="tab-btn active" data-tab="overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+        نظرة عامة
+      </button>
+      <button class="tab-btn" data-tab="students">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.5 3 6 3s6-1.5 6-3v-5"/><path d="M22 10v6"/></svg>
+        الطلاب
+      </button>
+      <button class="tab-btn" data-tab="receipts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        سندات القبض
+      </button>
+      <button class="tab-btn" data-tab="payments">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 12H4M4 12l6-6M4 12l6 6"/></svg>
+        سندات الصرف
+      </button>
+      <button class="tab-btn" data-tab="journal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        القيود اليومية
+      </button>
+      <button class="tab-btn" data-tab="ledger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/><path d="M8 7h8M8 11h8M8 15h5"/></svg>
+        دفتر الأستاذ
+      </button>
+      <button class="tab-btn" data-tab="trial-balance">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        ميزان المراجعة
+      </button>
+      <button class="tab-btn" data-tab="income-statement">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        القوائم المالية
+      </button>
+      <button class="tab-btn" data-tab="accounts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 9h18M9 21V9"/></svg>
+        دليل الحسابات
+      </button>
+      <button class="tab-btn hidden" data-tab="users" id="usersNavBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        المستخدمون
+      </button>
+      <button class="tab-btn" data-tab="settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        الإعدادات
+      </button>
+    </nav>
+    <div class="sidebar-foot">
+      <a href="../">↩ العودة إلى الموقع الرئيسي</a>
+      <button id="logoutBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        تسجيل الخروج
+      </button>
+    </div>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-topbar">
+      <div>
+        <h1 id="pageTitle">نظرة عامة</h1>
+        <p id="pageSubtitle">ملخص الوضع المالي للمدرسة</p>
+      </div>
+      <div class="app-user">
+        <span class="avatar" id="userAvatar">A</span>
+        <span><span id="userName">—</span><span class="user-role-badge" id="userRoleBadge"></span></span>
+      </div>
+    </div>
+
+    <!-- ============ تبويب: نظرة عامة ============ -->
+    <section id="tab-overview" class="tab-panel">
+      <div class="kpi-grid">
+        <div class="kpi-box k-revenue">
+          <div class="kpi-label">إجمالي الإيرادات</div>
+          <div class="kpi-value" id="kpiRevenue">0 ر.س</div>
+          <div class="kpi-sub">جميع رسوم وإيرادات المدرسة</div>
+        </div>
+        <div class="kpi-box k-expense">
+          <div class="kpi-label">إجمالي المصروفات</div>
+          <div class="kpi-value" id="kpiExpense">0 ر.س</div>
+          <div class="kpi-sub">رواتب، إيجار، تشغيل، وغيرها</div>
+        </div>
+        <div class="kpi-box k-profit" id="kpiProfitBox">
+          <div class="kpi-label">صافي الربح</div>
+          <div class="kpi-value" id="kpiProfit">0 ر.س</div>
+          <div class="kpi-sub" id="kpiProfitSub">الإيرادات − المصروفات</div>
+        </div>
+        <div class="kpi-box k-count">
+          <div class="kpi-label">السندات هذا الشهر</div>
+          <div class="kpi-value" id="kpiCount">0</div>
+          <div class="kpi-sub" id="kpiCountSub">إجمالي كل السندات: 0</div>
+        </div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="panel">
+          <div class="panel-head"><h3>الإيرادات والمصروفات — آخر 6 أشهر</h3><p>مقارنة شهرية بين التحصيل والصرف</p></div>
+          <div class="panel-body"><div id="revExpChart"></div></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>توزيع المصروفات</h3><p>حسب بند الصرف</p></div>
+          <div class="panel-body"><div id="expenseDonut"></div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>أحدث السندات</h3></div>
+        <div class="table-wrap">
+          <table class="data-table" id="recentTable">
+            <thead><tr><th>رقم السند</th><th>النوع</th><th>البيان</th><th>التاريخ</th><th>المبلغ</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: الطلاب ============ -->
+    <section id="tab-students" class="tab-panel hidden">
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:22px;">
+        <div class="kpi-box k-count">
+          <div class="kpi-label">عدد الطلاب</div>
+          <div class="kpi-value" id="studentsCount">0</div>
+          <div class="kpi-sub" id="studentsCountSub">في جميع الصفوف</div>
+        </div>
+        <div class="kpi-box k-revenue">
+          <div class="kpi-label">إجمالي ما تم تحصيله من الطلاب</div>
+          <div class="kpi-value" id="studentsTotalCollected">0 ر.س</div>
+          <div class="kpi-sub">سندات القبض المرتبطة بالطلاب</div>
+        </div>
+        <div class="kpi-box k-expense">
+          <div class="kpi-label">عدد الصفوف والمراحل</div>
+          <div class="kpi-value">15</div>
+          <div class="kpi-sub">من تمهيدي حتى الصف الثاني عشر</div>
+        </div>
+      </div>
+
+      <div class="students-toolbar">
+        <div>
+          <h2>الصفوف والمراحل</h2>
+          <p>اضغط على أي صف للانتقال إليه وعرض طلابه فقط — رقم القيد يُولَّد تلقائيًا حسب نطاق كل صف</p>
+        </div>
+        <button class="btn btn-accent" id="addStudentBtn">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          إضافة طالب جديد
+        </button>
+      </div>
+
+      <div class="class-grid" id="classGrid"></div>
+
+      <div class="class-page-header hidden" id="classPageHeader">
+        <button class="back-to-classes-btn" id="backToClassesBtn" type="button">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          كل الصفوف
+        </button>
+        <div class="cph-info">
+          <span class="cph-icon" id="cphIcon"></span>
+          <div>
+            <h2 id="cphName">—</h2>
+            <p id="cphMeta">—</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="studentsListPanel">
+        <div class="panel-head">
+          <h3>
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-3px;margin-inline-end:6px;"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.5 3 6 3s6-1.5 6-3v-5"/></svg>
+            سجل الطلاب
+          </h3>
+          <p id="studentsPanelSub">كل الصفوف</p>
+        </div>
+        <div class="students-actions-bar">
+          <div class="filters-inline">
+            <input type="text" id="studentSearch" placeholder="بحث بالاسم أو رقم القيد أو جوال ولي الأمر..." />
+          </div>
+          <button class="btn btn-navy btn-sm" id="exportStudentsBtn" type="button">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            تصدير سجل الطلاب CSV
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>QR</th><th>الطالب</th><th>الصف</th><th>جوال ولي الأمر</th><th>السندات</th><th>إجمالي المدفوعات</th><th>إجراءات</th></tr></thead>
+            <tbody id="studentsTableBody"></tbody>
+          </table>
+          <div id="studentsEmpty" class="empty-state hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.5 3 6 3s6-1.5 6-3v-5"/></svg>
+            <p>لا يوجد طلاب هنا بعد — اضغط «إضافة طالب جديد» للبدء</p>
+          </div>
+        </div>
+        <div class="pagination"><span class="info" id="studentsPagInfo"></span><div class="pages" id="studentsPagPages"></div></div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: سندات القبض ============ -->
+    <section id="tab-receipts" class="tab-panel hidden">
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="panel-head"><h3>سند قبض جديد</h3><p>تحصيل رسوم دراسية أو إيراد آخر</p></div>
+        <div class="panel-body">
+          <div id="receiptAlert" class="form-alert"></div>
+          <form id="receiptForm" class="voucher-form">
+            <div class="field"><label>التاريخ *</label><input type="date" name="date" required /></div>
+            <div class="field"><label>المبلغ (ر.س) *</label><input type="number" name="amount" min="0.01" step="0.01" required /></div>
+            <div class="field"><label>اسم الدافع (الطالب / ولي الأمر) *</label><input type="text" name="party_name" required /></div>
+            <div class="field"><label>طريقة الاستلام *</label>
+              <select name="method" required><option value="cash">نقدًا (الصندوق)</option><option value="bank">تحويل بنكي (البنك)</option></select>
+            </div>
+            <div class="field"><label>حساب الإيراد *</label>
+              <select name="account_id" id="receiptAccountSelect" required></select>
+            </div>
+            <div class="field"><label>ملاحظات <span style="font-weight:400;color:var(--text-muted)">(اختياري)</span></label><input type="text" name="description" /></div>
+            <div class="field full">
+              <button type="submit" class="btn btn-accent">إضافة سند القبض</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>جميع سندات القبض</h3>
+          <button class="btn btn-navy btn-sm" id="exportReceiptsBtn">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            تصدير القيود CSV
+          </button>
+        </div>
+        <div class="filters-row"><input type="text" id="receiptSearch" placeholder="بحث بالاسم أو رقم السند..." /></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>رقم السند</th><th>التاريخ</th><th>الدافع</th><th>الحساب</th><th>الطريقة</th><th>المبلغ</th><th>إجراءات</th></tr></thead>
+            <tbody id="receiptsTableBody"></tbody>
+          </table>
+          <div id="receiptsEmpty" class="empty-state hidden"><p>لا توجد سندات قبض بعد</p></div>
+        </div>
+        <div class="pagination"><span class="info" id="receiptsPagInfo"></span><div class="pages" id="receiptsPagPages"></div></div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: سندات الصرف ============ -->
+    <section id="tab-payments" class="tab-panel hidden">
+      <div class="panel" style="margin-bottom:20px;">
+        <div class="panel-head"><h3>سند صرف جديد</h3><p>تسجيل مصروف تشغيلي للمدرسة</p></div>
+        <div class="panel-body">
+          <div id="paymentAlert" class="form-alert"></div>
+          <form id="paymentForm" class="voucher-form">
+            <div class="field"><label>التاريخ *</label><input type="date" name="date" required /></div>
+            <div class="field"><label>المبلغ (ر.س) *</label><input type="number" name="amount" min="0.01" step="0.01" required /></div>
+            <div class="field"><label>المستفيد (جهة الصرف) *</label><input type="text" name="party_name" required /></div>
+            <div class="field"><label>طريقة الصرف *</label>
+              <select name="method" required><option value="cash">نقدًا (الصندوق)</option><option value="bank">تحويل بنكي (البنك)</option></select>
+            </div>
+            <div class="field"><label>حساب المصروف *</label>
+              <select name="account_id" id="paymentAccountSelect" required></select>
+            </div>
+            <div class="field"><label>ملاحظات <span style="font-weight:400;color:var(--text-muted)">(اختياري)</span></label><input type="text" name="description" /></div>
+            <div class="field full">
+              <button type="submit" class="btn btn-primary">إضافة سند الصرف</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <h3>جميع سندات الصرف</h3>
+        </div>
+        <div class="filters-row"><input type="text" id="paymentSearch" placeholder="بحث بالاسم أو رقم السند..." /></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>رقم السند</th><th>التاريخ</th><th>المستفيد</th><th>الحساب</th><th>الطريقة</th><th>المبلغ</th><th>إجراءات</th></tr></thead>
+            <tbody id="paymentsTableBody"></tbody>
+          </table>
+          <div id="paymentsEmpty" class="empty-state hidden"><p>لا توجد سندات صرف بعد</p></div>
+        </div>
+        <div class="pagination"><span class="info" id="paymentsPagInfo"></span><div class="pages" id="paymentsPagPages"></div></div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: القيود اليومية ============ -->
+    <section id="tab-journal" class="tab-panel hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>سجل القيود اليومية</h3>
+          <button class="btn btn-navy btn-sm" id="exportJournalBtn">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            تصدير CSV
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>رقم القيد</th><th>التاريخ</th><th>البيان</th><th>مدين</th><th>دائن</th><th>المبلغ</th></tr></thead>
+            <tbody id="journalTableBody"></tbody>
+          </table>
+          <div id="journalEmpty" class="empty-state hidden"><p>لا توجد قيود بعد — أضف سند قبض أو صرف لتظهر هنا</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: دفتر الأستاذ ============ -->
+    <section id="tab-ledger" class="tab-panel hidden">
+      <div class="panel">
+        <div class="ledger-select-row">
+          <label style="font-weight:800;font-size:13.5px;">اختر الحساب:</label>
+          <select id="ledgerAccountSelect"></select>
+          <span class="ledger-closing" id="ledgerClosing"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>رقم القيد</th><th>التاريخ</th><th>البيان</th><th>مدين</th><th>دائن</th><th>الرصيد التراكمي</th></tr></thead>
+            <tbody id="ledgerTableBody"></tbody>
+          </table>
+          <div id="ledgerEmpty" class="empty-state hidden"><p>لا توجد حركات على هذا الحساب بعد</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: ميزان المراجعة ============ -->
+    <section id="tab-trial-balance" class="tab-panel hidden">
+      <div class="panel">
+        <div class="panel-head">
+          <h3>ميزان المراجعة</h3>
+          <span id="trialBalanceBadge"></span>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>الرمز</th><th>الحساب</th><th>مدين</th><th>دائن</th><th>الرصيد</th></tr></thead>
+            <tbody id="trialBalanceBody"></tbody>
+            <tfoot><tr><td></td><td>الإجمالي</td><td id="tbTotalDebit"></td><td id="tbTotalCredit"></td><td></td></tr></tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: القوائم المالية ============ -->
+    <section id="tab-income-statement" class="tab-panel hidden">
+      <div class="summary-hero">
+        <div class="summary-card rev"><span>إجمالي الإيرادات</span><b id="isRevenue">0 ر.س</b></div>
+        <div class="summary-card exp"><span>إجمالي المصروفات</span><b id="isExpense">0 ر.س</b></div>
+        <div class="summary-card net" id="isNetCard"><span>صافي الربح / الخسارة</span><b id="isNet">0 ر.س</b></div>
+      </div>
+      <div class="charts-grid" style="grid-template-columns:1fr 1fr;">
+        <div class="panel">
+          <div class="panel-head"><h3>الإيرادات حسب المصدر</h3></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>الحساب</th><th>المبلغ</th></tr></thead>
+              <tbody id="revenueBreakdownBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>المصروفات حسب البند</h3></div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>الحساب</th><th>المبلغ</th></tr></thead>
+              <tbody id="expenseBreakdownBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: دليل الحسابات ============ -->
+    <section id="tab-accounts" class="tab-panel hidden">
+      <div class="panel">
+        <div class="panel-head"><h3>دليل الحسابات المدرسي</h3></div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>الرمز</th><th>اسم الحساب</th><th>النوع</th><th>الرصيد الطبيعي</th></tr></thead>
+            <tbody id="accountsTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: المستخدمون (مسؤول فقط) ============ -->
+    <section id="tab-users" class="tab-panel hidden">
+      <div class="panel">
+        <div class="panel-head" style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div><h3>حسابات الدخول للنظام</h3><p>أضف حسابات لفريق المحاسبة وحدّد صلاحية كل حساب — تُحفظ فقط في متصفح هذا الجهاز</p></div>
+          <button class="btn btn-primary" id="addUserBtn">+ إضافة مستخدم</button>
+        </div>
+        <div class="panel-body">
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>اسم المستخدم</th><th>الاسم</th><th>الدور</th><th>الحالة</th><th>تاريخ الإنشاء</th><th>إجراءات</th></tr></thead>
+              <tbody id="usersTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: الإعدادات ============ -->
+    <section id="tab-settings" class="tab-panel hidden">
+      <div class="panel" style="max-width:480px;">
+        <div class="panel-head"><h3>تغيير كلمة المرور</h3></div>
+        <div class="panel-body">
+          <div id="settingsAlert" class="form-alert"></div>
+          <form id="changePasswordForm">
+            <div class="field"><label>كلمة المرور الحالية</label><input type="password" name="current_password" required /></div>
+            <div class="field"><label>كلمة المرور الجديدة (8 أحرف على الأقل)</label><input type="password" name="new_password" required minlength="8" /></div>
+            <div class="field"><label>تأكيد كلمة المرور الجديدة</label><input type="password" name="confirm_password" required minlength="8" /></div>
+            <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="panel" style="max-width:560px;margin-top:20px;">
+        <div class="panel-head">
+          <h3>النسخ الاحتياطي والاستعادة</h3>
+          <p>كل بيانات النظام محفوظة داخل متصفح هذا الجهاز فقط — يُنصح بأخذ نسخة احتياطية دوريًا لتفادي فقدان البيانات</p>
+        </div>
+        <div class="panel-body">
+          <div id="backupAlert" class="form-alert"></div>
+
+          <div class="backup-box info">
+            <b>تنزيل نسخة احتياطية كاملة</b>
+            <p>يُنزَّل ملف واحد (JSON) يحتوي جميع الطلاب والسندات والقيود وحسابات المستخدمين. احتفظ به في مكان آمن (بريدك الإلكتروني، تخزين سحابي، أو قرص خارجي).</p>
+            <button type="button" class="btn btn-navy btn-sm" id="exportBackupBtn">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              تنزيل نسخة احتياطية الآن
+            </button>
+          </div>
+
+          <div class="backup-box warn">
+            <b>الاستعادة من نسخة احتياطية</b>
+            <p>يستبدل هذا كل بيانات النظام الحالية في هذا المتصفح بمحتوى الملف المختار، ولا يمكن التراجع بعد الاستعادة. تأكد من اختيار ملف النسخة الاحتياطية الصحيح الصادر من هذا النظام قبل المتابعة.</p>
+            <label class="file-btn">
+              <input type="file" id="importBackupInput" accept="application/json,.json" />
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              اختيار ملف النسخة الاحتياطية للاستعادة
+            </label>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- ============ نافذة: تأكيد استعادة نسخة احتياطية ============ -->
+<div class="modal-overlay hidden" id="confirmRestoreModal">
+  <div class="modal-box modal-sm">
+    <div class="modal-head">
+      <div><h3>تأكيد الاستعادة</h3><p>هذا الإجراء نهائي ولا يمكن التراجع عنه</p></div>
+      <button class="modal-close" id="confirmRestoreClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13.5px;color:var(--ink-secondary);font-weight:600;line-height:1.8;margin:0;">
+        سيتم استبدال <b>كل</b> بيانات الطلاب والسندات والقيود وحسابات المستخدمين الحالية في هذا المتصفح بمحتوى الملف:
+        <br /><span id="confirmRestoreFileName" style="color:var(--ink);font-family:monospace;"></span>
+        <br /><br />
+        هل تريد المتابعة؟
+      </p>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="confirmRestoreCancelBtn" type="button" style="background:var(--page);color:var(--ink-secondary);">إلغاء</button>
+      <button class="btn btn-primary" id="confirmRestoreOkBtn" type="button" style="background:var(--status-critical);border-color:var(--status-critical);">نعم، استبدال كل البيانات</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============ نافذة: إضافة / تعديل طالب ============ -->
+<div class="modal-overlay hidden" id="studentModal">
+  <div class="modal-box modal-lg">
+    <div class="modal-head">
+      <div>
+        <h3 id="studentModalTitle">إضافة طالب جديد</h3>
+        <p>نموذج قبول الطالب — يُولَّد رقم القيد تلقائيًا بعد اختيار الصف</p>
+      </div>
+      <button class="modal-close" id="studentModalClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="studentFormAlert" class="form-alert"></div>
+      <form id="studentForm" novalidate>
+        <input type="hidden" name="student_id" />
+
+        <div class="aform-section">
+          <div class="aform-section-head"><span class="aform-badge">1</span><h4>بيانات الطالب</h4></div>
+          <div class="aform-grid">
+            <div class="field"><label>الصف / المرحلة *</label><select name="class_id" id="studentClassSelect" required></select></div>
+            <div class="field"><label>رقم القيد</label><div class="reg-preview empty" id="regNoPreview">سيُحدَّد تلقائيًا عند الحفظ</div></div>
+            <div class="field"><label>اسم الطالب *</label><input type="text" name="name" required /></div>
+            <div class="field"><label>تاريخ الميلاد</label><input type="date" name="dob" /></div>
+            <div class="field"><label>الجنس</label>
+              <select name="gender"><option value="">— غير محدد —</option><option value="male">ذكر</option><option value="female">أنثى</option></select>
+            </div>
+            <div class="field"><label>تاريخ الالتحاق</label><input type="date" name="admission_date" /></div>
+            <div class="field"><label>نسبة الخصم على الرسوم (%)</label><input type="number" name="discount_percent" id="discountPercentInput" min="0" max="100" step="1" value="0" /></div>
+            <div class="field"><label>جوال ولي الأمر (SMS / واتساب)</label><input type="tel" name="guardian_phone" placeholder="+9665xxxxxxxx" /></div>
+
+            <div class="field full aform-fee-breakdown" id="feeBreakdownSection">
+              <div class="afp-head">
+                <span class="aform-badge">ر.س</span>
+                <div><b>تفاصيل الرسوم *</b><span>أدخل المبلغ المستحق لكل نوع رسوم — رقم منفصل لكل بند، تُجمع تلقائيًا لتكوين إجمالي رسوم الطالب</span></div>
+              </div>
+              <div class="afp-grid" id="feeBreakdownGrid"></div>
+              <div class="afp-hint" id="feeBreakdownTotalHint"></div>
+            </div>
+
+            <div class="field full aform-first-payment" id="firstPaymentSection">
+              <div class="afp-head">
+                <span class="aform-badge">$</span>
+                <div><b>الدفعة الأولى عند القبول *</b><span>إجبارية لأي نوع رسوم — يُصدر سند قبض تلقائيًا بهذا المبلغ فور حفظ الطالب</span></div>
+              </div>
+              <div class="afp-grid">
+                <div class="field"><label>نوع الرسوم (حساب الإيراد) *</label><select name="first_payment_account_id" id="studentFirstPaymentAccountSelect" required></select></div>
+                <div class="field"><label>مبلغ الدفعة الأولى (ر.س) *</label><input type="number" name="first_payment_amount" id="firstPaymentAmount" min="0.01" step="0.01" required /></div>
+                <div class="field"><label>طريقة الدفع *</label>
+                  <select name="first_payment_method" required>
+                    <option value="cash">نقدًا (الصندوق)</option>
+                    <option value="bank">تحويل بنكي (البنك)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="afp-hint" id="firstPaymentHint"></div>
+            </div>
+
+            <div class="field full aform-photo-row">
+              <div class="aform-photo-preview" id="studentPhotoPreview">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+              </div>
+              <div>
+                <label class="file-btn">
+                  <input type="file" id="studentPhotoInput" accept="image/*" />
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  اختيار صورة الطالب
+                </label>
+                <div class="file-hint">تُصغَّر الصورة تلقائيًا لتوفير المساحة</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="aform-section">
+          <div class="aform-section-head"><span class="aform-badge">2</span><h4>بيانات إضافية</h4></div>
+          <div class="aform-grid">
+            <div class="field"><label>فصيلة الدم</label><input type="text" name="blood_group" placeholder="مثال: O+" /></div>
+            <div class="field"><label>المدرسة السابقة</label><input type="text" name="previous_school" /></div>
+            <div class="field full"><label>العنوان</label><input type="text" name="address" /></div>
+            <div class="field full"><label>ملاحظات</label><textarea name="notes" rows="2"></textarea></div>
+          </div>
+        </div>
+
+        <div class="aform-section">
+          <div class="aform-section-head"><span class="aform-badge">3</span><h4>بيانات ولي الأمر (الأب)</h4></div>
+          <div class="aform-grid">
+            <div class="field"><label>اسم الأب</label><input type="text" name="father_name" /></div>
+            <div class="field"><label>رقم الهوية الوطنية</label><input type="text" name="father_id" /></div>
+            <div class="field"><label>المهنة</label><input type="text" name="father_job" /></div>
+            <div class="field"><label>رقم الجوال</label><input type="tel" name="father_phone" /></div>
+          </div>
+        </div>
+
+        <div class="aform-section">
+          <div class="aform-section-head"><span class="aform-badge">4</span><h4>بيانات الأم</h4></div>
+          <div class="aform-grid">
+            <div class="field"><label>اسم الأم</label><input type="text" name="mother_name" /></div>
+            <div class="field"><label>رقم الهوية الوطنية</label><input type="text" name="mother_id" /></div>
+            <div class="field"><label>المهنة</label><input type="text" name="mother_job" /></div>
+            <div class="field"><label>رقم الجوال</label><input type="tel" name="mother_phone" /></div>
+          </div>
+        </div>
+
+        <div class="aform-section">
+          <div class="aform-section-head"><span class="aform-badge">5</span><h4>المستندات</h4></div>
+          <div class="aform-grid">
+            <div class="field">
+              <label class="file-btn">
+                <input type="file" id="studentDoc1Input" accept="image/*,application/pdf" />
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                شهادة الميلاد / الهوية
+              </label>
+              <div class="file-hint" id="studentDoc1Name">لم يتم اختيار ملف — الحد الأقصى 300KB (صورة أو PDF)</div>
+            </div>
+            <div class="field">
+              <label class="file-btn">
+                <input type="file" id="studentDoc2Input" accept="image/*,application/pdf" />
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                مستند إضافي
+              </label>
+              <div class="file-hint" id="studentDoc2Name">لم يتم اختيار ملف — الحد الأقصى 300KB (صورة أو PDF)</div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="studentCancelBtn" type="button" style="background:var(--page);color:var(--ink-secondary);">إلغاء</button>
+      <button class="btn btn-accent" id="studentSaveBtn" form="studentForm" type="submit">حفظ بيانات الطالب</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ نافذة: عرض بطاقة الطالب ============ -->
+<div class="modal-overlay hidden" id="viewStudentModal">
+  <div class="modal-box modal-lg">
+    <div class="modal-head">
+      <div><h3>بطاقة الطالب</h3><p>البيانات الكاملة ورمز QR للتعريف السريع</p></div>
+      <button class="modal-close" id="viewStudentClose" type="button">×</button>
+    </div>
+    <div class="modal-body" id="viewStudentBody"></div>
+    <div class="modal-foot">
+      <button class="btn btn-navy btn-sm" id="printStudentCardBtn" type="button">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        طباعة بطاقة الطالب (PDF)
+      </button>
+      <button class="btn btn-navy btn-sm" id="printFullStatementBtn" type="button">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+        طباعة كشف كامل بكل السندات
+      </button>
+      <button class="btn btn-accent btn-sm" id="viewAddPaymentBtn" type="button">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        إضافة دفعة
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ نافذة: إضافة دفعة لطالب ============ -->
+<div class="modal-overlay hidden" id="paymentModal">
+  <div class="modal-box modal-sm">
+    <div class="modal-head">
+      <div><h3>إضافة دفعة</h3><p id="paymentModalSub">تسجيل سند قبض للطالب</p></div>
+      <button class="modal-close" id="paymentModalClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="studentPaymentAlert" class="form-alert"></div>
+      <form id="studentPaymentForm" novalidate>
+        <input type="hidden" name="student_id" />
+        <div class="field"><label>التاريخ *</label><input type="date" name="date" required /></div>
+        <div class="field"><label>المبلغ (ر.س) *</label><input type="number" name="amount" min="0.01" step="0.01" required /></div>
+        <div class="field"><label>طريقة الاستلام *</label>
+          <select name="method" required><option value="cash">نقدًا (الصندوق)</option><option value="bank">تحويل بنكي (البنك)</option></select>
+        </div>
+        <div class="field"><label>نوع الرسوم *</label><select name="fee_type_id" id="studentPaymentFeeTypeSelect" required></select></div>
+        <div class="field"><label>ملاحظات <span style="font-weight:400;color:var(--text-muted)">(اختياري)</span></label><input type="text" name="description" /></div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="studentPaymentCancelBtn" type="button" style="background:var(--page);color:var(--ink-secondary);">إلغاء</button>
+      <button class="btn btn-accent" type="submit" form="studentPaymentForm">حفظ الدفعة وإصدار السند</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ نافذة: إضافة مستخدم ============ -->
+<div class="modal-overlay hidden" id="userModal">
+  <div class="modal-box modal-sm">
+    <div class="modal-head">
+      <div><h3>إضافة مستخدم جديد</h3><p>سيتمكن هذا الحساب من تسجيل الدخول للنظام المحاسبي بهذه البيانات</p></div>
+      <button class="modal-close" id="userModalClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="userFormAlert" class="form-alert"></div>
+      <form id="userForm" novalidate>
+        <div class="field"><label>اسم المستخدم (للدخول) *</label><input type="text" name="username" required autocomplete="off" placeholder="مثال: accountant2" /></div>
+        <div class="field"><label>البريد الإلكتروني *</label><input type="email" name="email" required autocomplete="off" placeholder="يُستخدم فقط لاستعادة كلمة المرور عند نسيانها" /></div>
+        <div class="field"><label>الاسم الكامل</label><input type="text" name="name" placeholder="يظهر في أعلى الصفحة" /></div>
+        <div class="field"><label>الدور *</label>
+          <select name="role" required>
+            <option value="staff">محاسب — بدون صلاحية إدارة المستخدمين</option>
+            <option value="admin">مسؤول — صلاحية كاملة + إدارة المستخدمين</option>
+          </select>
+        </div>
+        <div class="field"><label>كلمة المرور (8 أحرف على الأقل) *</label><input type="password" name="password" required minlength="8" autocomplete="new-password" /></div>
+        <div class="field"><label>تأكيد كلمة المرور *</label><input type="password" name="confirm_password" required minlength="8" autocomplete="new-password" /></div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="userModalCancel" type="button" style="background:var(--page);color:var(--ink-secondary);">إلغاء</button>
+      <button class="btn btn-primary" type="submit" form="userForm">حفظ المستخدم</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ نافذة: تعديل مستخدم ============ -->
+<div class="modal-overlay hidden" id="editUserModal">
+  <div class="modal-box modal-sm">
+    <div class="modal-head">
+      <div><h3>تعديل بيانات المستخدم</h3></div>
+      <button class="modal-close" id="editUserModalClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="editUserFormAlert" class="form-alert"></div>
+      <form id="editUserForm" novalidate>
+        <input type="hidden" name="user_id" />
+        <div class="field"><label>اسم المستخدم</label><input type="text" name="username" disabled /></div>
+        <div class="field"><label>الاسم الكامل</label><input type="text" name="name" /></div>
+        <div class="field"><label>الدور *</label>
+          <select name="role" required>
+            <option value="staff">محاسب — بدون صلاحية إدارة المستخدمين</option>
+            <option value="admin">مسؤول — صلاحية كاملة + إدارة المستخدمين</option>
+          </select>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="editUserModalCancel" type="button" style="background:var(--page);color:var(--ink-secondary);">إلغاء</button>
+      <button class="btn btn-primary" type="submit" form="editUserForm">حفظ التعديلات</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ نافذة: إرسال رابط إعادة تعيين كلمة المرور ============ -->
+<div class="modal-overlay hidden" id="resetPwdModal">
+  <div class="modal-box modal-sm">
+    <div class="modal-head">
+      <div><h3>إعادة تعيين كلمة المرور</h3><p id="resetPwdUserLabel"></p></div>
+      <button class="modal-close" id="resetPwdModalClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="resetPwdFormAlert" class="form-alert"></div>
+      <p style="font-size:13.5px;color:var(--ink-secondary);line-height:1.9;">
+        لأسباب أمنية، لا يمكن تعيين كلمة مرور جديدة للمستخدم مباشرةً من هنا. اضغط الزر أدناه لإرسال رسالة رسمية تحتوي
+        رابط إعادة تعيين كلمة المرور إلى البريد الإلكتروني المسجَّل لهذا المستخدم، ليقوم هو بتعيين كلمة مرور جديدة بنفسه.
+      </p>
+      <input type="hidden" id="resetPwdUserId" />
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="resetPwdModalCancel" type="button" style="background:var(--page);color:var(--ink-secondary);">إلغاء</button>
+      <button class="btn btn-primary" type="button" id="resetPwdSendBtn">إرسال رابط إعادة التعيين</button>
+    </div>
+  </div>
+</div>
+
+<!-- منطقة الطباعة (مخفية على الشاشة، تظهر فقط عند الطباعة/حفظ PDF) -->
+<div id="printArea"></div>
+
+<!-- إعدادات مشروع Firebase الخاص بالمدرسة (سكربت عادي وليس module حتى يُحمَّل فورًا ويكون window.FIREBASE_CONFIG جاهزًا قبل store.js) -->
+<script src="../js/firebase-config.js"></script>
+<!-- type="module" ضروري هنا لاستيراد Firebase SDK مباشرةً من CDN بدون أي أداة بناء (bundler) -->
+<script type="module" src="../js/store.js"></script>
+<script type="module" src="../js/charts.js"></script>
+<script type="module" src="../js/qrcode.js"></script>
+<script type="module" src="../js/app.js"></script>
+</body>
+</html>
