@@ -32,6 +32,10 @@
     </nav>
 
     <div class="header-actions">
+      <button type="button" class="btn btn-ghost btn-sm lang-switch-btn" data-lang-toggle aria-label="Switch language">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span data-lang-toggle-label>English</span>
+      </button>
       <a href="app/" class="btn btn-ghost btn-sm">دخول المحاسب</a>
       <a href="app/" class="btn btn-primary btn-sm">افتح النظام</a>
       <button class="nav-toggle" id="navToggle" aria-label="القائمة">
@@ -46,6 +50,10 @@
       <a href="#accounts">دليل الحسابات</a>
       <a href="#features">مزايا النظام</a>
       <a href="app/">دخول المحاسب / فتح النظام</a>
+      <button type="button" class="btn btn-ghost btn-sm lang-switch-btn" data-lang-toggle style="margin-top:8px;justify-content:center;">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        <span data-lang-toggle-label>English</span>
+      </button>
     </nav>
   </div>
 </header>
@@ -304,6 +312,7 @@
   </div>
 </footer>
 
+<script src="js/i18n.js"></script>
 <script src="js/store.js"></script>
 <script src="js/main.js"></script>
 </body>

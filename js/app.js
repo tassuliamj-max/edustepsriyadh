@@ -5,9 +5,16 @@
   function $all(sel) { return document.querySelectorAll(sel); }
   function todayISO() { return new Date().toISOString().slice(0, 10); }
   function round2(n) { return Math.round((Number(n) || 0) * 100) / 100; }
-  function fmtMoney(n) { return (Number(n) || 0).toLocaleString('ar-SA', { maximumFractionDigits: 0 }) + ' ر.س'; }
+  function isEnglishUI() { return !!(window.AccI18n && window.AccI18n.getLang() === 'en'); }
+  function fmtMoney(n) {
+    if (isEnglishUI()) return (Number(n) || 0).toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' SAR';
+    return (Number(n) || 0).toLocaleString('ar-SA', { maximumFractionDigits: 0 }) + ' ر.س';
+  }
   function fmtDate(iso) {
-    try { return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' }); }
+    try {
+      if (isEnglishUI()) return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+      return new Date(iso).toLocaleDateString('ar-SA', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
     catch (e) { return iso; }
   }
   function escapeHtml(str) {
@@ -1511,6 +1518,15 @@
     'income-statement': loadIncomeStatement, accounts: loadAccountsTab, users: loadUsersTab,
   };
   document.addEventListener('acc:data-changed', () => {
+    if (!appInitialized) return;
+    if ($('#appShell').classList.contains('hidden')) return;
+    const loader = state.currentTab && TAB_LOADERS[state.currentTab];
+    if (loader) loader();
+  });
+
+  // تبديل اللغة (عربي/إنجليزي): يعيد رسم التبويب الحالي فورًا حتى تُنسَّق الأرقام والتواريخ
+  // بالصيغة الصحيحة للغة الجديدة (fmtMoney/fmtDate) بدل انتظار طبقة الترجمة النصية وحدها
+  document.addEventListener('lang:changed', () => {
     if (!appInitialized) return;
     if ($('#appShell').classList.contains('hidden')) return;
     const loader = state.currentTab && TAB_LOADERS[state.currentTab];

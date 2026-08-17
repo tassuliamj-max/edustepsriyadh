@@ -334,3 +334,12 @@ table.coa-table tr:last-child td { border-bottom: none; }
 .viz-donut-center { position: absolute; text-align: center; }
 .viz-donut-center b { display: block; font-size: 20px; color: var(--ink); }
 .viz-donut-center span { font-size: 11.5px; color: var(--text-muted); }
+
+/* ===================== وضع اللغة الإنجليزية (LTR) ===================== */
+/* معظم الصفحة مبنية بخصائص CSS منطقية (inset-inline-*, margin-inline-*) تنعكس تلقائيًا مع dir="ltr"،
+   هذا القسم يعالج فقط الخصائص الاتجاهية الصريحة القليلة المتبقية (text-align: right, right:) */
+html[dir="ltr"] body { direction: ltr; }
+html[dir="ltr"] .nav-desktop a::after { right: auto; left: 0; }
+html[dir="ltr"] table.coa-table th { text-align: left; }
+html[dir="ltr"] .skip-link { right: auto; left: -999px; }
+html[dir="ltr"] .skip-link:focus { left: 10px; right: auto; }

@@ -417,6 +417,22 @@ table.data-table tfoot td { font-weight: 800; background: var(--page); border-to
 .fee-receipt .pr-signoff span { display: block; font-size: 11px; color: #888; margin-bottom: 14px; }
 .fee-receipt .pr-signoff b { font-size: 12.5px; color: #101c33; }
 
+/* ===================== وضع اللغة الإنجليزية (LTR) — تطبيق النظام ===================== */
+/* أغلب app.css مبني بخصائص منطقية أيضًا؛ هذا يعالج البقية (text-align: right الصريحة، direction الثابتة) */
+html[dir="ltr"] .sidebar-nav button { text-align: left; }
+html[dir="ltr"] table.data-table th { text-align: left; }
+html[dir="ltr"] .class-box { text-align: left; }
+html[dir="ltr"] .class-box .cb-range,
+html[dir="ltr"] .cph-info p,
+html[dir="ltr"] .student-name-cell .sn-reg,
+html[dir="ltr"] .reg-preview,
+html[dir="ltr"] table.data-table .mono,
+html[dir="ltr"] .fee-receipt .pr-info-item b.mono {
+  direction: ltr; text-align: left;
+}
+html[dir="ltr"] .reg-preview.empty { direction: ltr; text-align: left; }
+html[dir="ltr"] .fee-receipt .pr-table th:nth-child(2), html[dir="ltr"] .fee-receipt .pr-table td:nth-child(2) { text-align: start; }
+
 @media print {
   /* بعض العناصر (صناديق الصفوف، البطاقات، القوائم المنسدلة) لديها transition: all، وتغيير وسيط
      الطباعة يُشغّل انتقال "visibility" بينها؛ نمط الانتقال لهذه الخاصية يبقيها "visible" حتى نهاية
