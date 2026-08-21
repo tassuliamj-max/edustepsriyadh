@@ -44,6 +44,8 @@
   function showApp() { $('#loginScreen').classList.add('hidden'); $('#appShell').classList.remove('hidden'); }
 
   const ROLE_LABEL = { admin: 'مسؤول', staff: 'محاسب' };
+  // ---------- الصلاحيات: الحسابات غير الإدارية (محاسب) لا ترى إلا هذه الأقسام الثلاثة ----------
+  const STAFF_ALLOWED_TABS = ['students', 'receipts', 'payments'];
   let currentRole = null;
 
   function applySessionUI(session) {
@@ -53,8 +55,11 @@
     $('#userAvatar').textContent = displayName.slice(0, 1).toUpperCase();
     const roleBadge = $('#userRoleBadge');
     if (roleBadge) roleBadge.textContent = ROLE_LABEL[session.role] || '';
-    const usersNav = $('#usersNavBtn');
-    if (usersNav) usersNav.classList.toggle('hidden', session.role !== 'admin');
+    const isAdmin = session.role === 'admin';
+    $all('.tab-btn').forEach((btn) => {
+      if (STAFF_ALLOWED_TABS.includes(btn.dataset.tab)) return; // ظاهر دائمًا لكل الحسابات
+      btn.classList.toggle('hidden', !isAdmin);
+    });
   }
 
   async function checkSession() {
@@ -119,7 +124,7 @@
   };
 
   function switchTab(tab) {
-    if (tab === 'users' && currentRole !== 'admin') tab = 'overview';
+    if (currentRole !== 'admin' && !STAFF_ALLOWED_TABS.includes(tab)) tab = 'students';
     state.currentTab = tab;
     $all('.tab-btn').forEach((b) => b.classList.toggle('active', b.dataset.tab === tab));
     $all('.tab-panel').forEach((p) => p.classList.add('hidden'));
@@ -1273,8 +1278,6 @@
 
   // ---------- الطباعة (إيصال سند / بطاقة طالب) — عبر نافذة طباعة المتصفح، يمكن حفظها كـ PDF ----------
   const SCHOOL_PRINT_NAME = 'إديو ستبس - الرياض';
-  const SCHOOL_PRINT_COUNTRY = 'المملكة العربية السعودية';
-
   function printHTML(html) {
     $('#printArea').innerHTML = html;
     setTimeout(() => window.print(), 60);
@@ -1285,7 +1288,7 @@
       <div class="pr-head">
         <img class="pr-logo" src="../img/logo.jpg" alt="${escapeHtml(SCHOOL_PRINT_NAME)}" />
         <b>${escapeHtml(SCHOOL_PRINT_NAME)}</b>
-        <span>${escapeHtml(subtitle || SCHOOL_PRINT_COUNTRY)}</span>
+        ${subtitle ? `<span>${escapeHtml(subtitle)}</span>` : ''}
       </div>`;
   }
 
@@ -1506,9 +1509,9 @@
 
   // ---------- التهيئة ----------
   function initApp() {
-    if (appInitialized) { loadOverview(); return; }
+    if (appInitialized) { switchTab(state.currentTab || 'overview'); return; }
     appInitialized = true;
-    switchTab('overview');
+    switchTab(currentRole === 'admin' ? 'overview' : 'students');
   }
 
   // ---------- تحديث حي: يُعاد رسم التبويب الحالي تلقائيًا فور وصول أي تغيير من Firestore (من نفس الجهاز أو من جهاز آخر) ----------
