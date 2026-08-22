@@ -60,6 +60,9 @@
       if (STAFF_ALLOWED_TABS.includes(btn.dataset.tab)) return; // ظاهر دائمًا لكل الحسابات
       btn.classList.toggle('hidden', !isAdmin);
     });
+    // إخفاء إجمالي ما تم تحصيله من الطلاب عن الحسابات غير الإدارية
+    const revenueKpi = $('#studentsRevenueKpiBox');
+    if (revenueKpi) revenueKpi.classList.toggle('hidden', !isAdmin);
   }
 
   async function checkSession() {
