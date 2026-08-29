@@ -417,6 +417,28 @@ table.data-table tfoot td { font-weight: 800; background: var(--page); border-to
 .fee-receipt .pr-signoff span { display: block; font-size: 11px; color: #888; margin-bottom: 14px; }
 .fee-receipt .pr-signoff b { font-size: 12.5px; color: #101c33; }
 
+/* ---------- بطاقة دخول الامتحان ----------
+   الزوايا (الشعار أعلى اليسار، توقيع المدير أسفل اليسار، الختم أسفل اليمين) مثبَّتة فعليًا
+   بـ position:absolute + left/right صريحة، بحيث لا تتأثر باتجاه RTL/LTR الخاص بلغة الواجهة */
+.exam-card { border: 2px solid #101c33; border-radius: 10px; padding: 18px 20px; }
+.exam-card .ec-head { position: relative; min-height: 56px; text-align: center; border-bottom: 2px solid #101c33; padding-bottom: 12px; margin-bottom: 16px; }
+.exam-card .ec-logo { position: absolute; left: 0; top: 0; width: 56px; height: 56px; object-fit: contain; }
+.exam-card .ec-schoolname { padding: 0 62px; }
+.exam-card .ec-schoolname b { display: block; font-size: 16px; color: #101c33; }
+.exam-card .ec-schoolname span { display: block; font-size: 11px; color: #666; margin-top: 2px; }
+.exam-card .ec-body { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 8px; }
+.exam-card .ec-info { flex: 1; }
+.exam-card .ec-info .pr-row:last-child { border-bottom: none; }
+.exam-card .ec-photo { width: 100px; height: 120px; flex: none; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #f4f6f9; color: #aaa; font-size: 11px; text-align: center; }
+.exam-card .ec-photo img { width: 100%; height: 100%; object-fit: cover; }
+.exam-card .ec-footer { position: relative; min-height: 90px; margin-top: 34px; padding-top: 14px; border-top: 1px dashed #ccc; }
+.exam-card .ec-sign { position: absolute; left: 0; bottom: 0; text-align: center; }
+.exam-card .ec-sign span { display: block; font-size: 11px; color: #888; margin-bottom: 14px; }
+.exam-card .ec-sign b { font-size: 12.5px; color: #101c33; }
+.exam-card .ec-sealbox { position: absolute; right: 0; bottom: 0; text-align: center; }
+.exam-card .ec-sealbox span { display: block; font-size: 11px; color: #888; margin-bottom: 8px; }
+.exam-card .ec-seal { width: 84px; height: 84px; border: 1.5px dashed #aaa; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999; margin: 0 auto; }
+
 /* ===================== وضع اللغة الإنجليزية (LTR) — تطبيق النظام ===================== */
 /* أغلب app.css مبني بخصائص منطقية أيضًا؛ هذا يعالج البقية (text-align: right الصريحة، direction الثابتة) */
 html[dir="ltr"] .sidebar-nav button { text-align: left; }

@@ -698,6 +698,9 @@
   $('#printStudentCardBtn').addEventListener('click', () => {
     if (currentViewStudentId) printStudentCard(currentViewStudentId);
   });
+  $('#printExamCardBtn').addEventListener('click', () => {
+    if (currentViewStudentId) printExamCard(currentViewStudentId);
+  });
   $('#printFullStatementBtn').addEventListener('click', () => {
     if (currentViewStudentId) printStudentStatement(currentViewStudentId);
   });
@@ -1421,6 +1424,37 @@
       </div>
     `);
     try { EduQR.renderToCanvas(document.getElementById(qrId), qrText, { size: 130, margin: 2 }); } catch (e) { /* تجاهل */ }
+  }
+
+  // ---------- بطاقة دخول الامتحان: الشعار أعلى اليسار، اسم المدرسة أعلى الوسط، صورة الطالب بجانب اسمه،
+  // توقيع المدير أسفل اليسار، وختم المدرسة أسفل اليمين ----------
+  function printExamCard(studentId) {
+    const s = AccStore.getStudent(studentId);
+    if (!s) return;
+    const g = AccStore.gradeById(s.class_id);
+    printHTML(`
+      <div class="print-receipt exam-card" dir="ltr">
+        <div class="ec-head">
+          <img class="ec-logo" src="../img/logo.jpg" alt="Edusteps - Riyadh" />
+          <div class="ec-schoolname">
+            <b>Edusteps - Riyadh</b>
+            <span>Exam Entry Card</span>
+          </div>
+        </div>
+        <div class="ec-body">
+          <div class="ec-info">
+            <div class="pr-row"><span>Student Name</span><b>${escapeHtml(s.name)}</b></div>
+            <div class="pr-row"><span>Seat No.</span><b class="mono">${escapeHtml(s.reg_no)}</b></div>
+            <div class="pr-row"><span>Class / Grade</span><b>${g ? escapeHtml(g.name) : '—'}</b></div>
+          </div>
+          <div class="ec-photo">${s.photo ? `<img src="${s.photo}" alt="" />` : 'Student Photo'}</div>
+        </div>
+        <div class="ec-footer">
+          <div class="ec-sign"><span>Manager's Signature</span><b>ــــــــــــــــــ</b></div>
+          <div class="ec-sealbox"><span>School Seal</span><div class="ec-seal">Seal</div></div>
+        </div>
+      </div>
+    `);
   }
 
   // ---------- كشف كامل بجميع سندات القبض الخاصة بطالب (مستند واحد منفصل، بخلاف إيصال كل سند الذي يُطبع وحده الآن) ----------

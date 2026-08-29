@@ -344,6 +344,7 @@
     'خصم': 'Discount',
     'لا توجد رسوم مُفصَّلة': 'No itemized fees',
     'طباعة بطاقة الطالب (PDF)': 'Print Student Card (PDF)',
+    'طباعة بطاقة دخول الامتحان': 'Print Exam Entry Card',
     'طباعة كشف كامل بكل السندات': 'Print Full Voucher Statement',
   });
 
@@ -553,6 +554,11 @@
     'قسم الحسابات —': 'Accounts Department —',
     'بطاقة تعريف الطالب': 'Student ID Card',
     '— تعريف سريع عبر مسح رمز QR': '— quick ID via QR scan',
+    'بطاقة دخول الامتحان': 'Exam Entry Card',
+    'صورة الطالب': 'Student Photo',
+    'توقيع المدير': "Manager's Signature",
+    'ختم المدرسة': 'School Seal',
+    'ختم': 'Seal',
     'كشف كامل بسندات القبض —': 'Full Receipt Voucher Statement —',
     'تاريخ الطباعة': 'Print Date',
     'الرصيد المستحق من دفعات سابقة': 'Balance Due From Previous Payments',
