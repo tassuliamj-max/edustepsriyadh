@@ -19,11 +19,11 @@
 
   // ---- هوية المدرسة (تُستبدل تلقائيًا لكل موقع عبر متغير BRAND أدناه) ----
   addAll({
-    'إديو ستبس - الرياض': 'Edusteps Riyadh',
-    'Cute Kids — كيوت كيدز إنترناشونال': 'Edusteps Riyadh',
-    'إديو ستبس - الرياض. جميع الحقوق محفوظة.': 'Edusteps Riyadh. All rights reserved.',
-    'النظام المحاسبي المدرسي | إديو ستبس - الرياض': 'School Accounting System | Edusteps Riyadh',
-    'النظام المحاسبي | إديو ستبس - الرياض': 'Accounting System | Edusteps Riyadh',
+    'إيديوبلس - الرياض': 'EduPlus Riyadh',
+    'Cute Kids — كيوت كيدز إنترناشونال': 'EduPlus Riyadh',
+    'إيديوبلس - الرياض. جميع الحقوق محفوظة.': 'EduPlus Riyadh. All rights reserved.',
+    'النظام المحاسبي المدرسي | إيديوبلس - الرياض': 'School Accounting System | EduPlus Riyadh',
+    'النظام المحاسبي | إيديوبلس - الرياض': 'Accounting System | EduPlus Riyadh',
     'المملكة العربية السعودية': 'Kingdom of Saudi Arabia',
   });
 

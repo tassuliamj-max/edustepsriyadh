@@ -1283,7 +1283,7 @@
   });
 
   // ---------- الطباعة (إيصال سند / بطاقة طالب) — عبر نافذة طباعة المتصفح، يمكن حفظها كـ PDF ----------
-  const SCHOOL_PRINT_NAME = 'إديو ستبس - الرياض';
+  const SCHOOL_PRINT_NAME = 'إيديوبلس - الرياض';
   function printHTML(html) {
     $('#printArea').innerHTML = html;
     setTimeout(() => window.print(), 60);
@@ -1292,7 +1292,7 @@
   function printHeaderHTML(subtitle) {
     return `
       <div class="pr-head">
-        <img class="pr-logo" src="../img/logo.jpg" alt="${escapeHtml(SCHOOL_PRINT_NAME)}" />
+        <img class="pr-logo" src="../img/logo.png" alt="${escapeHtml(SCHOOL_PRINT_NAME)}" />
         <b>${escapeHtml(SCHOOL_PRINT_NAME)}</b>
         ${subtitle ? `<span>${escapeHtml(subtitle)}</span>` : ''}
       </div>`;
@@ -1435,9 +1435,9 @@
     printHTML(`
       <div class="print-receipt exam-card" dir="ltr">
         <div class="ec-head">
-          <img class="ec-logo" src="../img/logo.jpg" alt="Edusteps - Riyadh" />
+          <img class="ec-logo" src="../img/logo.png" alt="EduPlus - Riyadh" />
           <div class="ec-schoolname">
-            <b>Edusteps - Riyadh</b>
+            <b>EduPlus - Riyadh</b>
             <span>Exam Entry Card</span>
           </div>
         </div>
