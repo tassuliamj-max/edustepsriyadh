@@ -296,6 +296,8 @@
               <button class="icon-btn view" data-view="${s.id}" title="عرض"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
               <button class="icon-btn edit" data-edit="${s.id}" title="تعديل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
               <button class="icon-btn pay" data-pay="${s.id}" title="إضافة دفعة"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></button>
+              <button class="icon-btn" data-wa-start="${s.id}" title="بدء محادثة واتساب (إرسال رسالة تدعو ولي الأمر للرد)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+              <button class="icon-btn" data-wa-chat="${s.id}" title="إرسال رسالة واتساب حرة (بعد ردّ ولي الأمر خلال 24 ساعة)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></button>
               ${currentRole === 'admin' ? `<button class="icon-btn danger" data-delete="${s.id}" title="حذف"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>` : ''}
             </div>
           </td>
@@ -309,6 +311,8 @@
       tbody.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => openViewStudent(b.dataset.view)));
       tbody.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => openStudentForm(b.dataset.edit)));
       tbody.querySelectorAll('[data-pay]').forEach((b) => b.addEventListener('click', () => openPaymentModal(b.dataset.pay)));
+      tbody.querySelectorAll('[data-wa-start]').forEach((b) => b.addEventListener('click', () => { if (blockIfViewer()) return; sendWhatsAppStartConversation(b.dataset.waStart, b); }));
+      tbody.querySelectorAll('[data-wa-chat]').forEach((b) => b.addEventListener('click', () => { if (blockIfViewer()) return; openWaChatModal(b.dataset.waChat); }));
       tbody.querySelectorAll('[data-delete]').forEach((b) => b.addEventListener('click', async () => {
         const st = AccStore.getStudent(b.dataset.delete);
         if (!confirm(`حذف الطالب «${st ? st.name : ''}»؟ لن يتم حذف السندات المالية المرتبطة به.`)) return;
@@ -602,6 +606,7 @@
           description: 'الدفعة الأولى عند القبول',
         });
         toast(`تمت إضافة الطالب (رقم القيد: ${created.reg_no}) وتسجيل الدفعة الأولى بمبلغ ${fmtMoney(firstPaymentAmount)}`, 'success');
+        sendWhatsAppWelcome(created.name, payload.guardian_phone || payload.father_phone);
       }
       closeModal('studentModal');
       state.studentsPage = 1;
@@ -707,6 +712,7 @@
 
   // ---------- إضافة دفعة لطالب ----------
   const studentPaymentForm = $('#studentPaymentForm');
+  const waChatForm = $('#waChatForm');
   fillFeeTypeSelect($('#studentPaymentFeeTypeSelect'), AccStore.FEE_TYPES);
 
   function openPaymentModal(studentId) {
@@ -827,10 +833,12 @@
           <td>${fmtMoney(v.amount)}</td>
           <td><div class="row-actions">
             <button class="icon-btn" data-print="${v.id}" title="طباعة / حفظ PDF"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg></button>
+            ${v.student_id ? `<button class="icon-btn" data-whatsapp="${v.id}" title="إرسال الإيصال عبر واتساب"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>` : ''}
             ${currentRole === 'admin' ? `<button class="icon-btn danger" data-delete="${v.id}" title="حذف"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>` : ''}
           </div></td>
         </tr>`).join('');
       tbody.querySelectorAll('[data-print]').forEach((btn) => btn.addEventListener('click', () => printVoucher(btn.dataset.print)));
+      tbody.querySelectorAll('[data-whatsapp]').forEach((btn) => btn.addEventListener('click', () => sendReceiptWhatsApp(btn.dataset.whatsapp, btn)));
       tbody.querySelectorAll('[data-delete]').forEach((btn) => btn.addEventListener('click', async () => {
         if (!confirm('حذف سند القبض هذا؟ سيُحذف القيد المرتبط به أيضًا.')) return;
         btn.disabled = true;
@@ -1284,6 +1292,7 @@
 
   // ---------- الطباعة (إيصال سند / بطاقة طالب) — عبر نافذة طباعة المتصفح، يمكن حفظها كـ PDF ----------
   const SCHOOL_PRINT_NAME = 'إيديوبلس - الرياض';
+  const SCHOOL_PRINT_NAME_EN = 'EduPlus Riyadh';
   function printHTML(html) {
     $('#printArea').innerHTML = html;
     setTimeout(() => window.print(), 60);
@@ -1543,6 +1552,251 @@
       </div>
     `;
   }
+
+  // ---------- رسالة ترحيب واتساب تلقائية لولي الأمر عند تسجيل طالب جديد ----------
+  // يُرسَل الطلب إلى دالة خادم (Netlify Function) وليس مباشرة إلى واجهة WhatsApp من المتصفح،
+  // حتى لا يظهر توكن الوصول السري في كود الموقع. الدالة نفسها تتجاهل الأخطاء بصمت (fire-and-forget)
+  // كي لا يتعطّل حفظ الطالب أبدًا بسبب مشكلة في واتساب.
+  // Shared backend: this Netlify site now serves WhatsApp messages for all
+  // EduPlus schools (Khamis, Abha, Jeddah) from one place, using one phone
+  // number, so each school passes its own name in the request body.
+  const WHATSAPP_WELCOME_API_URL = 'https://gilded-begonia-2ea387.netlify.app/api/whatsapp-welcome';
+
+  function normalizePhoneForWhatsApp(raw) {
+    let digits = String(raw || '').replace(/[^\d]/g, ''); // يزيل + والمسافات والشرطات، يُبقي الأرقام فقط
+    if (!digits) return '';
+    if (digits.startsWith('00')) digits = digits.slice(2); // 00966... -> 966...
+    if (digits.startsWith('966') && digits.charAt(3) === '0') {
+      // خطأ شائع: كتابة +966 ثم إبقاء الصفر المحلي (مثال: +9660501234567) — يجب حذف هذا الصفر
+      digits = '966' + digits.slice(4);
+    } else if (digits.startsWith('0')) {
+      digits = '966' + digits.slice(1); // افتراضي: رقم جوال سعودي محلي (يبدأ بصفر)
+    } else if (digits.length === 9 && !digits.startsWith('966')) {
+      digits = '966' + digits; // رقم بلا صفر ولا رمز دولة
+    }
+    return digits;
+  }
+
+  function sendWhatsAppWelcome(studentName, guardianPhone) {
+    const phone = normalizePhoneForWhatsApp(guardianPhone);
+    if (!phone) return;
+    try {
+      fetch(WHATSAPP_WELCOME_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ studentName, phone, schoolNameAr: SCHOOL_PRINT_NAME, schoolNameEn: SCHOOL_PRINT_NAME_EN }),
+      })
+        .then((res) => res.json().catch(() => ({})).then((data) => {
+          // لا نزعج المستخدم بأي رسالة — فقط نسجّل النتيجة في console المتصفح لتسهيل تشخيص أي عطل لاحقًا
+          if (res.ok && data && data.ok) console.info('WHATSAPP_WELCOME_SENT', data);
+          else console.warn('WHATSAPP_WELCOME_FAILED', res.status, data);
+        }))
+        .catch((e) => console.warn('WHATSAPP_WELCOME_NETWORK_ERROR', e && e.message));
+    } catch (e) { /* تجاهل */ }
+  }
+
+  // ---------- إرسال إيصال دفع الرسوم عبر واتساب (PDF فعلي مرفق بالرسالة، بضغطة زر يدوية) ----------
+  // يُبنى نفس الإيصال المستخدم في الطباعة، ثم يُحوَّل إلى PDF داخل المتصفح عبر html2pdf.js
+  // (محمَّلة من CDN في index.html)، ويُرسَل إلى دالة خادم (Netlify Function) ترفعه إلى واتساب
+  // وترسله ضمن قالب رسالة (payment_receipt) معتمد من ميتا يحتوي على مرفق مستند.
+  const WHATSAPP_RECEIPT_API_URL = 'https://gilded-begonia-2ea387.netlify.app/api/whatsapp-receipt';
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = String(reader.result || '');
+        const commaIndex = result.indexOf(',');
+        resolve(commaIndex >= 0 ? result.slice(commaIndex + 1) : result);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function sendReceiptWhatsApp(voucherId, btn) {
+    if (blockIfViewer()) return;
+    const v = AccStore.getVoucher(voucherId);
+    if (!v || v.type !== 'receipt' || !v.student_id) return;
+    const student = AccStore.getStudent(v.student_id);
+    if (!student) { toast('تعذّر العثور على بيانات الطالب', 'error'); return; }
+    const phone = normalizePhoneForWhatsApp(student.guardian_phone || student.father_phone);
+    if (!phone) { toast('لا يوجد رقم جوال لولي الأمر لإرسال الإيصال إليه', 'error'); return; }
+    if (typeof window.html2pdf !== 'function') {
+      toast('تعذّر تجهيز ملف PDF — تحقّق من اتصال الإنترنت وأعد المحاولة', 'error');
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    let container = null;
+    try {
+      const account = AccStore.accountLabel(v.account_id);
+      const qrId = 'waReceiptQr' + Date.now();
+      const qrText = `${AccStore.SCHOOL_CODE}|${v.serial}`;
+
+      // نبني نفس عنصر الإيصال المستخدم في الطباعة، كي يلتقطه html2pdf بنفس تنسيق الموقع
+      // (خطوط، ألوان، QR) دون التأثير على واجهة المستخدم الحالية.
+      // ملاحظة مهمّة (تم التحقق منها تجريبيًا على الموقع الفعلي): html2canvas يلتقط هذا
+      // العنصر كصفحة فارغة تمامًا إذا كان بوضع position: fixed أو position: absolute
+      // خارج الشاشة — في كلتا الحالتين، بغض النظر عن إعدادات scrollX/scrollY أو
+      // foreignObjectRendering. الحل الموثوق: إبقاء العنصر بوضعه الطبيعي (static) داخل
+      // تدفق المستند (هكذا يلتقطه html2canvas بمحتواه كاملاً)، وإخفاؤه عن المستخدم عبر
+      // وضعه داخل "غلاف" مثبّت بحجم صفر مع overflow: hidden بدلاً من تحريك العنصر نفسه.
+      container = document.createElement('div');
+      container.style.width = '760px';
+      container.style.background = '#fff';
+      container.innerHTML = buildFeeReceiptHTML(v, student, account, qrId, qrText);
+
+      const containerWrapper = document.createElement('div');
+      Object.assign(containerWrapper.style, {
+        position: 'fixed', top: '0', left: '0', width: '0', height: '0',
+        overflow: 'hidden', pointerEvents: 'none',
+      });
+      containerWrapper.appendChild(container);
+      document.body.appendChild(containerWrapper);
+
+      try { EduQR.renderToCanvas(container.querySelector('#' + qrId), qrText, { size: 130, margin: 2 }); } catch (e) { /* تجاهل */ }
+      await new Promise((resolve) => setTimeout(resolve, 80)); // إتاحة وقت لرسم رمز QR قبل الالتقاط
+
+      const pdfBlob = await window.html2pdf().from(container).set({
+        margin: 10,
+        image: { type: 'jpeg', quality: 0.95 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      }).outputPdf('blob');
+
+      const pdfBase64 = await blobToBase64(pdfBlob);
+
+      const res = await fetch(WHATSAPP_RECEIPT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, studentName: student.name, amount: fmtMoney(v.amount), pdfBase64 }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data && data.success) {
+        toast('تم إرسال الإيصال عبر واتساب', 'success');
+      } else {
+        console.warn('WHATSAPP_RECEIPT_FAILED', res.status, data);
+        toast('تعذّر إرسال الإيصال عبر واتساب', 'error');
+      }
+    } catch (e) {
+      console.warn('WHATSAPP_RECEIPT_ERROR', e && e.message);
+      toast('تعذّر إرسال الإيصال عبر واتساب', 'error');
+    } finally {
+      // نزيل الغلاف الخارجي (containerWrapper) وليس container فقط، لأن container أصبح
+      // الآن بداخل غلاف مثبّت بحجم صفر تم إنشاؤه أعلاه لإخفائه دون إخراجه من تدفق المستند.
+      if (container && container.parentNode) {
+        const wrapper = container.parentNode;
+        if (wrapper.parentNode) wrapper.parentNode.removeChild(wrapper);
+        else wrapper.removeChild(container);
+      }
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  // ---------- محادثة واتساب حرة مع ولي الأمر ----------
+  // WhatsApp's Cloud API only allows free-form (non-template) messages during
+  // the 24 hours after the PARENT has sent the school a message. These two
+  // pieces cover that flow:
+  //   1) sendWhatsAppStartConversation — sends an approved template (with a
+  //      Quick Reply button) inviting the parent to reply. Staff trigger
+  //      this manually per parent, whenever they want to open a chat.
+  //   2) openWaChatModal / the waChatForm submit handler below — lets staff
+  //      type and send a free message. This only succeeds if the parent
+  //      actually replied in the last 24h; staff currently confirm that by
+  //      checking the WhatsApp Business inbox in Meta Business Suite
+  //      themselves before sending (there's no in-app reply tracker yet).
+  const WHATSAPP_START_API_URL = 'https://gilded-begonia-2ea387.netlify.app/api/whatsapp-start-conversation';
+  const WHATSAPP_SEND_TEXT_API_URL = 'https://gilded-begonia-2ea387.netlify.app/api/whatsapp-send-text';
+
+  async function sendWhatsAppStartConversation(studentId, btn) {
+    const s = AccStore.getStudent(studentId);
+    if (!s) return;
+    const phone = normalizePhoneForWhatsApp(s.guardian_phone || s.father_phone);
+    if (!phone) { toast('لا يوجد رقم جوال لولي الأمر', 'error'); return; }
+    if (btn) btn.disabled = true;
+    try {
+      const res = await fetch(WHATSAPP_START_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, studentName: s.name }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data && data.success) {
+        toast('تم إرسال رسالة بدء المحادثة — بانتظار ردّ ولي الأمر', 'success');
+      } else {
+        console.warn('WHATSAPP_START_FAILED', res.status, data);
+        toast('تعذّر إرسال رسالة بدء المحادثة', 'error');
+      }
+    } catch (e) {
+      console.warn('WHATSAPP_START_ERROR', e && e.message);
+      toast('تعذّر إرسال رسالة بدء المحادثة', 'error');
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function openWaChatModal(studentId) {
+    const s = AccStore.getStudent(studentId);
+    if (!s) return;
+    waChatForm.reset();
+    waChatForm.student_id.value = s.id;
+    $('#waChatModalSub').textContent = `إرسال رسالة لولي أمر: ${s.name} (${s.reg_no})`;
+    $('#waChatAlert').className = 'form-alert';
+    openModal('waChatModal');
+  }
+  $('#waChatModalClose').addEventListener('click', () => closeModal('waChatModal'));
+  $('#waChatCancelBtn').addEventListener('click', () => closeModal('waChatModal'));
+
+  waChatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (blockIfViewer()) return;
+    const alertBox = $('#waChatAlert');
+    alertBox.className = 'form-alert';
+    const fd = new FormData(waChatForm);
+    const studentId = fd.get('student_id');
+    const message = String(fd.get('message') || '').trim();
+    const s = AccStore.getStudent(studentId);
+    const phone = s ? normalizePhoneForWhatsApp(s.guardian_phone || s.father_phone) : '';
+    if (!s || !message) {
+      alertBox.className = 'form-alert show error';
+      alertBox.textContent = 'يرجى كتابة نص الرسالة';
+      return;
+    }
+    if (!phone) {
+      alertBox.className = 'form-alert show error';
+      alertBox.textContent = 'لا يوجد رقم جوال لولي الأمر';
+      return;
+    }
+    const submitBtn = document.querySelector('button[form="waChatForm"]');
+    if (submitBtn) submitBtn.disabled = true;
+    try {
+      const res = await fetch(WHATSAPP_SEND_TEXT_API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone, message }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && data && data.success) {
+        closeModal('waChatModal');
+        toast('تم إرسال الرسالة', 'success');
+      } else if (data && data.outsideWindow) {
+        alertBox.className = 'form-alert show error';
+        alertBox.textContent = 'لم يردّ ولي الأمر خلال آخر 24 ساعة — أرسلوا رسالة "بدء محادثة" أولًا وتأكّدوا من رده قبل إعادة المحاولة';
+      } else {
+        console.warn('WHATSAPP_SEND_TEXT_FAILED', res.status, data);
+        alertBox.className = 'form-alert show error';
+        alertBox.textContent = 'تعذّر إرسال الرسالة — تحقّقوا من الاتصال بالإنترنت وحاولوا مجددًا';
+      }
+    } catch (err) {
+      console.warn('WHATSAPP_SEND_TEXT_ERROR', err && err.message);
+      alertBox.className = 'form-alert show error';
+      alertBox.textContent = 'تعذّر إرسال الرسالة — تحقّقوا من الاتصال بالإنترنت وحاولوا مجددًا';
+    } finally {
+      if (submitBtn) submitBtn.disabled = false;
+    }
+  });
+
 
   // ---------- التهيئة ----------
   function initApp() {
