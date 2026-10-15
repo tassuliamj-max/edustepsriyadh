@@ -47,6 +47,7 @@
   // ---------- الصلاحيات: الحسابات غير الإدارية (محاسب) لا ترى إلا هذه الأقسام الثلاثة ----------
   const STAFF_ALLOWED_TABS = ['students', 'receipts', 'payments'];
   let currentRole = null;
+  function blockIfViewer() { if (currentRole === 'viewer') { toast('هذا الحساب للعرض فقط — لا يمكنه الإضافة أو التعديل أو الحذف أو الطباعة', 'error'); return true; } return false; }
 
   function applySessionUI(session) {
     currentRole = session.role;
