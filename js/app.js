@@ -152,7 +152,29 @@
   $all('.tab-btn').forEach((btn) => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
 
   // ---------- نظرة عامة ----------
+  let overviewMonthOffset = 0;
+  function monthRangeForOffset(offset) {
+    const now = new Date();
+    const d = new Date(now.getFullYear(), now.getMonth() - offset, 1);
+    const y = d.getFullYear(), m = d.getMonth() + 1;
+    const lastDay = new Date(y, m, 0).getDate();
+    const from = `${y}-${String(m).padStart(2, '0')}-01`;
+    const to = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
+    const label = offset === 0 ? 'الشهر الحالي' : d.toLocaleDateString('ar-SA', { month: 'long', year: 'numeric' });
+    return { from, to, label };
+  }
+  function renderMonthIncome() {
+    const { from, to, label } = monthRangeForOffset(overviewMonthOffset);
+    const income = AccStore.getIncomeStatement({ from, to });
+    $('#kpiMonthIncome').textContent = fmtMoney(income.totalRevenue);
+    $('#kpiMonthIncomeSub').textContent = label;
+    $('#kpiMonthNextBtn').disabled = overviewMonthOffset === 0;
+  }
+  $('#kpiMonthPrevBtn').addEventListener('click', () => { overviewMonthOffset++; renderMonthIncome(); });
+  $('#kpiMonthNextBtn').addEventListener('click', () => { if (overviewMonthOffset > 0) { overviewMonthOffset--; renderMonthIncome(); } });
   function loadOverview() {
+    overviewMonthOffset = 0;
+    renderMonthIncome();
     const s = AccStore.getStats();
     $('#kpiRevenue').textContent = fmtMoney(s.totalRevenue);
     $('#kpiExpense').textContent = fmtMoney(s.totalExpense);
