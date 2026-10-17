@@ -74,6 +74,10 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.5 2.5 3 6 3s6-1.5 6-3v-5"/><path d="M22 10v6"/></svg>
         الطلاب
       </button>
+      <button class="tab-btn" data-tab="teachers">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        المعلمون
+      </button>
       <button class="tab-btn" data-tab="receipts">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         سندات القبض
@@ -269,6 +273,56 @@
           </div>
         </div>
         <div class="pagination"><span class="info" id="studentsPagInfo"></span><div class="pages" id="studentsPagPages"></div></div>
+      </div>
+    </section>
+
+    <!-- ============ تبويب: المعلمون ============ -->
+    <section id="tab-teachers" class="tab-panel hidden">
+      <div class="kpi-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:22px;">
+        <div class="kpi-box k-count">
+          <div class="kpi-label">عدد المعلمين والموظفين</div>
+          <div class="kpi-value" id="teachersCount">0</div>
+          <div class="kpi-sub">جميع السجلات المضافة</div>
+        </div>
+        <div class="kpi-box k-expense">
+          <div class="kpi-label">إجمالي الرواتب الشهرية</div>
+          <div class="kpi-value" id="teachersTotalSalaries">0 ر.س</div>
+          <div class="kpi-sub">رواتب جميع المعلمين والموظفين</div>
+        </div>
+      </div>
+
+      <div class="panel" id="teachersListPanel">
+        <div class="panel-head">
+          <h3>
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" style="display:inline;vertical-align:-3px;margin-inline-end:6px;"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            سجل المعلمين والموظفين
+          </h3>
+          <p id="teachersPanelSub">بيانات المعلمين والموظفين — الرقم الوظيفي يُولَّد تلقائيًا</p>
+        </div>
+        <div class="students-actions-bar">
+          <div class="filters-inline">
+            <input type="text" id="teacherSearch" placeholder="بحث بالاسم أو الرقم الوظيفي أو الجوال..." />
+          </div>
+          <button class="btn btn-navy btn-sm" id="exportTeachersBtn" type="button">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            تصدير السجل CSV
+          </button>
+          <button class="btn btn-accent" id="addTeacherBtn" type="button">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            إضافة معلم / موظف
+          </button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>الصورة</th><th>الاسم</th><th>الوظيفة</th><th>الجوال</th><th>الراتب الشهري</th><th>تاريخ الالتحاق</th><th>إجراءات</th></tr></thead>
+            <tbody id="teachersTableBody"></tbody>
+          </table>
+          <div id="teachersEmpty" class="empty-state hidden">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            <p>لا يوجد معلمون أو موظفون مسجَّلون بعد — اضغط «إضافة معلم / موظف» للبدء</p>
+          </div>
+        </div>
+        <div class="pagination"><span class="info" id="teachersPagInfo"></span><div class="pages" id="teachersPagPages"></div></div>
       </div>
     </section>
 
@@ -675,6 +729,72 @@
 </div>
 
 <!-- ============ نافذة: عرض بطاقة الطالب ============ -->
+<!-- ============ نافذة: إضافة / تعديل معلم أو موظف ============ -->
+<div class="modal-overlay hidden" id="teacherModal">
+  <div class="modal-box modal-lg">
+    <div class="modal-head">
+      <div>
+        <h3 id="teacherModalTitle">إضافة معلم / موظف جديد</h3>
+        <p>بيانات المعلم أو الموظف — الرقم الوظيفي يُولَّد تلقائيًا عند الحفظ</p>
+      </div>
+      <button class="modal-close" id="teacherModalClose" type="button">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="teacherFormAlert" class="form-alert"></div>
+      <form id="teacherForm" novalidate>
+        <input type="hidden" name="teacher_id" />
+
+        <div class="aform-section">
+          <div class="aform-section-head"><span class="aform-badge">1</span><h4>البيانات الأساسية</h4></div>
+          <div class="aform-grid">
+            <div class="field"><label>الوظيفة *</label><select name="role" id="teacherRoleSelect" required></select></div>
+            <div class="field"><label>رقم الجوال (SMS / واتساب)</label><input type="tel" name="phone" placeholder="+9665xxxxxxxx" /></div>
+            <div class="field"><label>اسم المعلم / الموظف *</label><input type="text" name="name" required /></div>
+            <div class="field"><label>الراتب الشهري (ر.س) *</label><input type="number" name="salary" min="0" step="0.01" required /></div>
+            <div class="field"><label>تاريخ الالتحاق *</label><input type="date" name="join_date" required /></div>
+
+            <div class="field full aform-photo-row">
+              <div class="aform-photo-preview" id="teacherPhotoPreview">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+              </div>
+              <div>
+                <label class="file-btn">
+                  <input type="file" id="teacherPhotoInput" accept="image/*" />
+                  <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  اختيار الصورة
+                </label>
+                <div class="file-hint">الحد الأقصى 100KB — تُصغَّر الصورة تلقائيًا</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="aform-section">
+          <div class="aform-section-head"><span class="aform-badge">2</span><h4>بيانات إضافية</h4></div>
+          <div class="aform-grid">
+            <div class="field"><label>الخبرة</label><input type="text" name="experience" placeholder="مثال: 5 سنوات" /></div>
+            <div class="field"><label>الجنس</label>
+              <select name="gender"><option value="">— غير محدد —</option><option value="male">ذكر</option><option value="female">أنثى</option></select>
+            </div>
+            <div class="field"><label>اسم الأب / الزوج</label><input type="text" name="guardian_name" /></div>
+            <div class="field"><label>البريد الإلكتروني</label><input type="email" name="email" /></div>
+            <div class="field"><label>الديانة</label><input type="text" name="religion" /></div>
+            <div class="field"><label>رقم الهوية الوطنية</label><input type="text" name="national_id" /></div>
+            <div class="field"><label>تاريخ الميلاد</label><input type="date" name="dob" /></div>
+            <div class="field"><label>فصيلة الدم</label><input type="text" name="blood_group" placeholder="مثال: O+" /></div>
+            <div class="field"><label>المستوى التعليمي</label><input type="text" name="education" /></div>
+            <div class="field full"><label>العنوان</label><input type="text" name="address" /></div>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="modal-foot">
+      <button class="btn" id="teacherCancelBtn" type="button" style="background:var(--page);color:var(--ink-secondary);">إلغاء</button>
+      <button class="btn btn-accent" id="teacherSaveBtn" form="teacherForm" type="submit">حفظ بيانات المعلم</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay hidden" id="viewStudentModal">
   <div class="modal-box modal-lg">
     <div class="modal-head">
