@@ -113,6 +113,18 @@ import {
   };
   function feeTypeToAccountId(feeTypeId) { return FEE_TYPE_ACCOUNT_MAP[feeTypeId] || 'rev_other'; }
 
+  // ---------- الوظائف التدريسية (لقسم المعلمين) ----------
+  const TEACHER_ROLES = [
+    { id: 'homeroom', label: 'معلم/ة فصل' },
+    { id: 'subject', label: 'معلم/ة مادة' },
+    { id: 'assistant', label: 'معلم/ة مساعد' },
+    { id: 'coordinator', label: 'منسق/ة' },
+    { id: 'admin_staff', label: 'إداري/ة' },
+    { id: 'other', label: 'أخرى' },
+  ];
+  function teacherRoleById(id) { return TEACHER_ROLES.find((r) => r.id === id) || null; }
+  function teacherRoleLabel(id) { const r = teacherRoleById(id); return r ? r.label : (id || '—'); }
+
   // ---------- أدوات عامة ----------
   function round2(n) { return Math.round((n + Number.EPSILON) * 100) / 100; }
 
@@ -129,11 +141,12 @@ import {
   // ---------- النسخة المحلية المخزَّنة في الذاكرة (cache) — تُحدَّث حيًّا عبر onSnapshot ----------
   const cache = {
     students: [],
+    teachers: [],
     vouchers: [],
     users: [],
-    counters: { receipt: 0, payment: 0 },
+    counters: { receipt: 0, payment: 0, teacher: 0 },
     studentCounters: {},
-    ready: { students: false, vouchers: false, users: false, counters: false, studentCounters: false },
+    ready: { students: false, teachers: false, vouchers: false, users: false, counters: false, studentCounters: false },
   };
   let unsubscribers = [];
 
@@ -144,9 +157,9 @@ import {
   function stopListening() {
     unsubscribers.forEach((u) => { try { u(); } catch (e) { /* تجاهل */ } });
     unsubscribers = [];
-    cache.students = []; cache.vouchers = []; cache.users = [];
-    cache.counters = { receipt: 0, payment: 0 }; cache.studentCounters = {};
-    cache.ready = { students: false, vouchers: false, users: false, counters: false, studentCounters: false };
+    cache.students = []; cache.teachers = []; cache.vouchers = []; cache.users = [];
+    cache.counters = { receipt: 0, payment: 0, teacher: 0 }; cache.studentCounters = {};
+    cache.ready = { students: false, teachers: false, vouchers: false, users: false, counters: false, studentCounters: false };
   }
 
   // يبدأ الاستماع الحي لكل مجموعات البيانات — يُستدعى فقط بعد تسجيل دخول ناجح
@@ -157,6 +170,12 @@ import {
       cache.ready.students = true;
       notifyChange();
     }, () => { cache.ready.students = true; notifyChange(); }));
+
+    unsubscribers.push(onSnapshot(collection(db, 'teachers'), (snap) => {
+      cache.teachers = snap.docs.map((d) => d.data());
+      cache.ready.teachers = true;
+      notifyChange();
+    }, () => { cache.ready.teachers = true; notifyChange(); }));
 
     unsubscribers.push(onSnapshot(collection(db, 'vouchers'), (snap) => {
       cache.vouchers = snap.docs.map((d) => d.data());
@@ -194,6 +213,7 @@ import {
   const Store = {
     ACCOUNTS, REVENUE_ACCOUNTS, EXPENSE_ACCOUNTS, ASSET_ACCOUNTS, accountById, accountLabel,
     GRADES, gradeById, FEE_TYPES, feeTypeById, feeTypeToAccountId, SCHOOL_CODE, peekNextRegNo,
+    TEACHER_ROLES, teacherRoleById, teacherRoleLabel,
 
     // إنشاء سند قبض — معاملة Firestore ذرّية: تحجز رقمًا تسلسليًا فريدًا حتى مع كتابة متزامنة من أكثر من جهاز
     async createReceipt(data) {
@@ -408,6 +428,80 @@ import {
       return { totalStudents: rows.length, totalCollected: round2(rows.reduce((s, r) => s + r.totalPaid, 0)) };
     },
 
+    // ---------- سجل المعلمين ----------
+    async createTeacher(data) {
+      const ref = doc(collection(db, 'teachers'));
+      const now = new Date().toISOString();
+      const record = {
+        id: ref.id, emp_no: '', role: data.role || '', name: (data.name || '').trim(),
+        phone: data.phone || '', salary: round2(Math.max(0, Number(data.salary) || 0)),
+        join_date: data.join_date || new Date().toISOString().slice(0, 10), photo: data.photo || '',
+        experience: data.experience || '', gender: data.gender || '', guardian_name: data.guardian_name || '',
+        email: data.email || '', religion: data.religion || '', national_id: data.national_id || '',
+        dob: data.dob || '', blood_group: data.blood_group || '', education: data.education || '', address: data.address || '',
+        created_at: now, updated_at: now,
+      };
+      await runTransaction(db, async (tx) => {
+        const countersRef = doc(db, 'meta', 'counters');
+        const countersSnap = await tx.get(countersRef);
+        const counters = countersSnap.exists() ? countersSnap.data() : { receipt: 0, payment: 0, teacher: 0 };
+        const next = (counters.teacher || 0) + 1;
+        record.emp_no = `TCH-${String(next).padStart(4, '0')}`;
+        tx.set(countersRef, { ...counters, teacher: next }, { merge: true });
+        tx.set(ref, record);
+      });
+      return record;
+    },
+
+    async updateTeacher(id, data) {
+      const prev = cache.teachers.find((t) => t.id === id);
+      if (!prev) return null;
+      const updated = {
+        ...prev, ...data, id: prev.id, emp_no: prev.emp_no,
+        salary: round2(Math.max(0, Number(data.salary ?? prev.salary) || 0)),
+        updated_at: new Date().toISOString(),
+      };
+      await setDoc(doc(db, 'teachers', id), updated);
+      return updated;
+    },
+
+    async deleteTeacher(id) {
+      if (!Auth.isAdmin()) return { ok: false, error: 'حذف المعلمين متاح لحساب المسؤول فقط' };
+      try {
+        await deleteDoc(doc(db, 'teachers', id));
+        return { ok: true };
+      } catch (e) {
+        return { ok: false, error: 'تعذّر الحذف — تحقق من الاتصال أو صلاحياتك: ' + (e && e.message ? e.message : '') };
+      }
+    },
+
+    getTeacher(id) { return cache.teachers.find((t) => t.id === id) || null; },
+
+    listTeachers({ search = '', page = 1, pageSize = 12 } = {}) {
+      let list = cache.teachers.slice().sort((a, b) => (a.emp_no || '').localeCompare(b.emp_no || ''));
+      if (search) {
+        const q = search.trim().toLowerCase();
+        list = list.filter((t) => [t.name, t.emp_no, t.phone, t.national_id].some((f) => String(f || '').toLowerCase().includes(q)));
+      }
+      const total = list.length;
+      const start = (Math.max(1, page) - 1) * pageSize;
+      return { rows: list.slice(start, start + pageSize), total };
+    },
+
+    getTeachersTotals() {
+      return { totalTeachers: cache.teachers.length, totalSalaries: round2(cache.teachers.reduce((s, t) => s + (t.salary || 0), 0)) };
+    },
+
+    exportTeachersCSV() {
+      const headers = ['الرقم الوظيفي', 'الاسم', 'الوظيفة', 'الجوال', 'الراتب الشهري', 'تاريخ الالتحاق', 'البريد الإلكتروني', 'رقم الهوية الوطنية'];
+      const esc = (v) => { if (v === null || v === undefined) return ''; const s = String(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+      const lines = [headers.map(esc).join(',')];
+      cache.teachers.slice().sort((a, b) => (a.emp_no || '').localeCompare(b.emp_no || '')).forEach((t) => {
+        lines.push([t.emp_no, t.name, teacherRoleLabel(t.role), t.phone || '', t.salary || 0, t.join_date || '', t.email || '', t.national_id || ''].map(esc).join(','));
+      });
+      downloadTextFile(`teachers-${Date.now()}.csv`, '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8;');
+    },
+
     getIncomeStatement({ from = null, to = null } = {}) {
       const vouchers = cache.vouchers.filter((v) => {
         if (from && v.date < from) return false;
@@ -490,7 +584,7 @@ import {
       const payload = {
         app: 'edusteps-riyadh', school_code: SCHOOL_CODE, backup_version: 2,
         exported_at: new Date().toISOString(),
-        data: { vouchers: cache.vouchers, students: cache.students, counters: cache.counters, studentCounters: cache.studentCounters },
+        data: { vouchers: cache.vouchers, students: cache.students, teachers: cache.teachers, counters: cache.counters, studentCounters: cache.studentCounters },
       };
       downloadTextFile(`edu-steps-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload, null, 2), 'application/json;charset=utf-8;');
     },
@@ -507,7 +601,7 @@ import {
       const d = payload.data;
       try {
         // حذف كل الطلاب والسندات الحالية أولًا (على دفعات — الحد الأقصى 500 عملية لكل دفعة في Firestore)
-        const existingIds = [...cache.students.map((s) => ['students', s.id]), ...cache.vouchers.map((v) => ['vouchers', v.id])];
+        const existingIds = [...cache.students.map((s) => ['students', s.id]), ...cache.teachers.map((t) => ['teachers', t.id]), ...cache.vouchers.map((v) => ['vouchers', v.id])];
         for (let i = 0; i < existingIds.length; i += 450) {
           const batch = writeBatch(db);
           existingIds.slice(i, i + 450).forEach(([col, id]) => batch.delete(doc(db, col, id)));
@@ -515,6 +609,7 @@ import {
         }
         const newDocs = [
           ...(Array.isArray(d.students) ? d.students.map((s) => ['students', s]) : []),
+          ...(Array.isArray(d.teachers) ? d.teachers.map((t) => ['teachers', t]) : []),
           ...(Array.isArray(d.vouchers) ? d.vouchers.map((v) => ['vouchers', v]) : []),
         ];
         for (let i = 0; i < newDocs.length; i += 450) {

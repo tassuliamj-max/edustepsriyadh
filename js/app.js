@@ -30,6 +30,8 @@
     studentsPage: 1,
     studentsSearch: '',
     studentsClassId: '',
+    teachersPage: 1,
+    teachersSearch: '',
   };
 
   function toast(message, type) {
@@ -116,6 +118,7 @@
   const TITLES = {
     overview: ['نظرة عامة', 'ملخص الوضع المالي للمدرسة'],
     students: ['الطلاب', 'سجل الطلاب الكامل مصنّفًا حسب الصفوف والمراحل'],
+    teachers: ['المعلمون', 'سجل المعلمين والموظفين وبياناتهم'],
     receipts: ['سندات القبض', 'تسجيل ومتابعة رسوم الطلاب والإيرادات'],
     payments: ['سندات الصرف', 'تسجيل ومتابعة مصروفات المدرسة'],
     journal: ['القيود اليومية', 'سجل كل حركة مالية بطرفيها المدين والدائن'],
@@ -640,6 +643,174 @@
       alertBox.textContent = 'تعذّر الحفظ — تحقق من الاتصال بالإنترنت وحاول مجددًا';
     } finally {
       if (saveBtn) saveBtn.disabled = false;
+    }
+  });
+
+  // ---------- المعلمون والموظفون ----------
+  let teachersDebounce = null;
+  $('#teacherSearch').addEventListener('input', (e) => {
+    clearTimeout(teachersDebounce);
+    teachersDebounce = setTimeout(() => { state.teachersSearch = e.target.value.trim(); state.teachersPage = 1; loadTeachers(); }, 250);
+  });
+  $('#exportTeachersBtn').addEventListener('click', () => AccStore.exportTeachersCSV());
+
+  $('#teacherRoleSelect').innerHTML = AccStore.TEACHER_ROLES.map((r) => `<option value="${r.id}">${escapeHtml(r.label)}</option>`).join('');
+
+  function loadTeachers() {
+    const { rows, total } = AccStore.listTeachers({ search: state.teachersSearch, page: state.teachersPage, pageSize: 8 });
+    const totals = AccStore.getTeachersTotals();
+    $('#teachersCount').textContent = totals.totalTeachers;
+    $('#teachersTotalSalaries').textContent = fmtMoney(totals.totalSalaries);
+
+    const tbody = $('#teachersTableBody');
+    const empty = $('#teachersEmpty');
+    if (!rows.length) { tbody.innerHTML = ''; empty.classList.remove('hidden'); }
+    else {
+      empty.classList.add('hidden');
+      tbody.innerHTML = rows.map((t) => `
+        <tr>
+          <td><div class="student-avatar">${t.photo ? `<img src="${t.photo}" alt="" />` : escapeHtml((t.name || '?').slice(0, 1))}</div></td>
+          <td>
+            <div class="student-name-cell">
+              <div><div class="sn-name">${escapeHtml(t.name)}</div><div class="sn-reg">${escapeHtml(t.emp_no || '')}</div></div>
+            </div>
+          </td>
+          <td>${escapeHtml(AccStore.teacherRoleLabel(t.role))}</td>
+          <td class="mono">${escapeHtml(t.phone || '—')}</td>
+          <td>${fmtMoney(t.salary)}</td>
+          <td>${t.join_date ? fmtDate(t.join_date) : '—'}</td>
+          <td>
+            <div class="row-actions">
+              <button class="icon-btn edit" data-edit-teacher="${t.id}" title="تعديل"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+              ${currentRole === 'admin' ? `<button class="icon-btn danger" data-delete-teacher="${t.id}" title="حذف"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>` : ''}
+            </div>
+          </td>
+        </tr>`).join('');
+
+      tbody.querySelectorAll('[data-edit-teacher]').forEach((b) => b.addEventListener('click', () => { if (blockIfViewer()) return; openTeacherForm(b.dataset.editTeacher); }));
+      tbody.querySelectorAll('[data-delete-teacher]').forEach((b) => b.addEventListener('click', async () => {
+        const t = AccStore.getTeacher(b.dataset.deleteTeacher);
+        if (!confirm(`حذف «${t ? t.name : ''}» من سجل المعلمين والموظفين؟`)) return;
+        b.disabled = true;
+        const result = await AccStore.deleteTeacher(b.dataset.deleteTeacher);
+        b.disabled = false;
+        if (!result.ok) { toast(result.error || 'ليست لديك صلاحية لحذف المعلمين', 'error'); return; }
+        toast('تم حذف السجل', 'success');
+        loadTeachers();
+      }));
+    }
+    renderPagination('teachersPagInfo', 'teachersPagPages', total, 8, state.teachersPage, (p) => { state.teachersPage = p; loadTeachers(); });
+  }
+
+  // ---------- نموذج إضافة / تعديل معلم أو موظف ----------
+  const teacherForm = $('#teacherForm');
+  let currentTeacherPhotoDataURL = '';
+  const MAX_TEACHER_PHOTO_BYTES = 100 * 1024;
+
+  $('#teacherPhotoInput').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (file.size > MAX_TEACHER_PHOTO_BYTES) {
+      toast(`الصورة كبيرة جدًا (${Math.round(file.size / 1024)}KB) — الحد الأقصى 100KB`, 'error');
+      e.target.value = '';
+      return;
+    }
+    const raw = await readFileAsDataURL(file);
+    currentTeacherPhotoDataURL = await resizeImageDataURL(raw, 260);
+    $('#teacherPhotoPreview').innerHTML = `<img src="${currentTeacherPhotoDataURL}" alt="" />`;
+  });
+
+  function resetTeacherForm() {
+    teacherForm.reset();
+    teacherForm.teacher_id.value = '';
+    currentTeacherPhotoDataURL = '';
+    $('#teacherPhotoPreview').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>';
+    $('#teacherFormAlert').className = 'form-alert';
+    teacherForm.join_date.value = todayISO();
+  }
+
+  function openTeacherForm(teacherId) {
+    resetTeacherForm();
+    if (teacherId) {
+      const t = AccStore.getTeacher(teacherId);
+      if (!t) return;
+      $('#teacherModalTitle').textContent = 'تعديل بيانات المعلم / الموظف';
+      teacherForm.teacher_id.value = t.id;
+      teacherForm.role.value = t.role || '';
+      teacherForm.phone.value = t.phone || '';
+      teacherForm.name.value = t.name || '';
+      teacherForm.salary.value = t.salary || 0;
+      teacherForm.join_date.value = t.join_date || todayISO();
+      teacherForm.experience.value = t.experience || '';
+      teacherForm.gender.value = t.gender || '';
+      teacherForm.guardian_name.value = t.guardian_name || '';
+      teacherForm.email.value = t.email || '';
+      teacherForm.religion.value = t.religion || '';
+      teacherForm.national_id.value = t.national_id || '';
+      teacherForm.dob.value = t.dob || '';
+      teacherForm.blood_group.value = t.blood_group || '';
+      teacherForm.education.value = t.education || '';
+      teacherForm.address.value = t.address || '';
+      currentTeacherPhotoDataURL = t.photo || '';
+      if (currentTeacherPhotoDataURL) $('#teacherPhotoPreview').innerHTML = `<img src="${currentTeacherPhotoDataURL}" alt="" />`;
+    } else {
+      $('#teacherModalTitle').textContent = 'إضافة معلم / موظف جديد';
+    }
+    openModal('teacherModal');
+  }
+
+  $('#addTeacherBtn').addEventListener('click', () => { if (blockIfViewer()) return; openTeacherForm(null); });
+  $('#teacherModalClose').addEventListener('click', () => closeModal('teacherModal'));
+  $('#teacherCancelBtn').addEventListener('click', () => closeModal('teacherModal'));
+
+  teacherForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (blockIfViewer()) return;
+    const alertBox = $('#teacherFormAlert');
+    alertBox.className = 'form-alert';
+    const fd = new FormData(teacherForm);
+    const teacherId = fd.get('teacher_id');
+    if (!fd.get('role') || !fd.get('name') || !fd.get('salary') || !fd.get('join_date')) {
+      alertBox.className = 'form-alert show error';
+      alertBox.textContent = 'يرجى تعبئة الوظيفة والاسم والراتب الشهري وتاريخ الالتحاق — هذه الحقول إجبارية';
+      return;
+    }
+    const payload = {
+      role: fd.get('role'),
+      phone: fd.get('phone'),
+      name: fd.get('name'),
+      salary: fd.get('salary'),
+      join_date: fd.get('join_date'),
+      photo: currentTeacherPhotoDataURL,
+      experience: fd.get('experience'),
+      gender: fd.get('gender'),
+      guardian_name: fd.get('guardian_name'),
+      email: fd.get('email'),
+      religion: fd.get('religion'),
+      national_id: fd.get('national_id'),
+      dob: fd.get('dob'),
+      blood_group: fd.get('blood_group'),
+      education: fd.get('education'),
+      address: fd.get('address'),
+    };
+    const saveBtn2 = $('#teacherSaveBtn');
+    if (saveBtn2) saveBtn2.disabled = true;
+    try {
+      if (teacherId) {
+        await AccStore.updateTeacher(teacherId, payload);
+        toast('تم تحديث بيانات المعلم / الموظف', 'success');
+      } else {
+        const created = await AccStore.createTeacher(payload);
+        toast(`تمت إضافة السجل (الرقم الوظيفي: ${created.emp_no})`, 'success');
+      }
+      closeModal('teacherModal');
+      state.teachersPage = 1;
+      loadTeachers();
+    } catch (err) {
+      alertBox.className = 'form-alert show error';
+      alertBox.textContent = 'تعذّر الحفظ — تحقق من الاتصال بالإنترنت وحاول مجددًا';
+    } finally {
+      if (saveBtn2) saveBtn2.disabled = false;
     }
   });
 
@@ -1830,7 +2001,7 @@
 
   // ---------- تحديث حي: يُعاد رسم التبويب الحالي تلقائيًا فور وصول أي تغيير من Firestore (من نفس الجهاز أو من جهاز آخر) ----------
   const TAB_LOADERS = {
-    overview: loadOverview, students: loadStudents, receipts: loadReceipts, payments: loadPayments,
+    overview: loadOverview, students: loadStudents, teachers: loadTeachers, receipts: loadReceipts, payments: loadPayments,
     journal: loadJournal, ledger: loadLedger, 'trial-balance': loadTrialBalance,
     'income-statement': loadIncomeStatement, accounts: loadAccountsTab, users: loadUsersTab,
   };
