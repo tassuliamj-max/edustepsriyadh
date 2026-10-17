@@ -651,6 +651,48 @@
     'تفصيل الرسوم': 'Fee Breakdown',
   });
 
+  // ================= قسم المعلمين (تبويب التسجيل) =================
+  addAll({
+    'المعلمون': 'Teachers',
+    'عدد المعلمين والموظفين': 'Teachers & Staff Count',
+    'جميع السجلات المضافة': 'All added records',
+    'إجمالي الرواتب الشهرية': 'Total Monthly Salaries',
+    'رواتب جميع المعلمين والموظفين': 'Salaries of all teachers and staff',
+    'سجل المعلمين والموظفين': 'Teachers & Staff Records',
+    'سجل المعلمين والموظفين وبياناتهم': 'Teacher and staff records and data',
+    'بيانات المعلمين والموظفين — الرقم الوظيفي يُولَّد تلقائيًا': 'Teacher & staff data — employee number generated automatically',
+    'بحث بالاسم أو الرقم الوظيفي أو الجوال...': 'Search by name, employee no., or phone...',
+    'تصدير السجل CSV': 'Export Records CSV',
+    'إضافة معلم / موظف': 'Add Teacher / Staff',
+    'الصورة': 'Photo',
+    'الوظيفة': 'Role',
+    'الجوال': 'Mobile',
+    'الراتب الشهري': 'Monthly Salary',
+    'لا يوجد معلمون أو موظفون مسجَّلون بعد — اضغط «إضافة معلم / موظف» للبدء': 'No teachers or staff registered yet — click "Add Teacher / Staff" to start',
+    'إضافة معلم / موظف جديد': 'Add New Teacher / Staff Member',
+    'تعديل بيانات المعلم / الموظف': 'Edit Teacher / Staff Data',
+    'بيانات المعلم أو الموظف — الرقم الوظيفي يُولَّد تلقائيًا عند الحفظ': 'Teacher or staff data — employee number generated automatically on save',
+    'البيانات الأساسية': 'Basic Information',
+    'الوظيفة *': 'Role *',
+    'رقم الجوال (SMS / واتساب)': 'Phone Number (SMS / WhatsApp)',
+    'اسم المعلم / الموظف *': 'Teacher / Staff Name *',
+    'الراتب الشهري (ر.س) *': 'Monthly Salary (SAR) *',
+    'تاريخ الالتحاق *': 'Enrollment Date *',
+    'اختيار الصورة': 'Choose Photo',
+    'الحد الأقصى 100KB — تُصغَّر الصورة تلقائيًا': 'Max 100KB — photo resized automatically',
+    'الخبرة': 'Experience',
+    'اسم الأب / الزوج': 'Father\'s / Husband\'s Name',
+    'الديانة': 'Religion',
+    'المستوى التعليمي': 'Education Level',
+    'حفظ بيانات المعلم': 'Save Teacher Data',
+    'معلم/ة فصل': 'Homeroom Teacher',
+    'معلم/ة مادة': 'Subject Teacher',
+    'معلم/ة مساعد': 'Assistant Teacher',
+    'منسق/ة': 'Coordinator',
+    'إداري/ة': 'Administrative Staff',
+    'أخرى': 'Other',
+  });
+
   // ================= محرك الترجمة =================
   var forwardPairs = null; // [[ar, en], ...] مرتبة تنازليًا حسب طول النص العربي
   var reversePairs = null; // [[en, ar], ...] مرتبة تنازليًا حسب طول النص الإنجليزي
